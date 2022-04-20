@@ -16,6 +16,8 @@ another helpful source: https://sourcemaking.com/design_patterns/flyweight/pytho
 """
 
 import abc
+import pygame
+from body import Skeleton
 
 class AgentFactory:
     """
@@ -25,11 +27,20 @@ class AgentFactory:
     instance or creates one, if none exists."""
 
     def __init__(self):
-        self.agents = {}
+        self.__agents = {}
 
     def get_agent(self, key):
-        try: 
-            agent = self.agents[key]
+        """Retreive an Agent matching the given key. If an agent with the key 
+        does not exist, then a new agent will be created.
+
+        Parameters:
+        - key (int): The integer identifier of the agent
+
+        Returns (ConcreteAgent): The agent matching the given key.
+        """
+
+        try:
+            agent = self.__agents[key]
         except KeyError:
             agent = ConcreteAgent()
             self.__agents[key] = agent
@@ -44,17 +55,31 @@ class Agent(metaclass=abc.ABCMeta):
     def __init__(self):
         self.intrinsic_state = None
 
+        # Define the skeleton backing the agent
+        points = [(40, 300), (40, 290)]
+        sticks = [(0,1)]
+        self.skeleton = Skeleton(points, sticks)
+
     @abc.abstractmethod
     def operation(self, extrinsic_state):
+        """Description"""
         # TODO: this is a placeholder function. It will likely be replaced with 
-        # functions such as `move` or `draw` etc. 
-        pass
+        # functions such as `move` or `draw` etc.
+
+    @abc.abstractmethod
+    def draw(self, canvas):
+        """Draws the agent to the given canvas.
+
+        Parameters:
+        - canvas (pygame.surface): A pygame surface to draw onto.
+
+        Returns: None
+        """
 
 # Possible to make an interface through which flyweights can receive and act
 # on extrinsic state using ABCMeta
 
-
-class ConcreteAgent:
+class ConcreteAgent(Agent):
     """
     Implements the agent interface and add storage for intrinsic state if any.
     A ConcreteAgent object must be sharable. Any state it stores must be 
@@ -63,3 +88,10 @@ class ConcreteAgent:
     def operation(self, extrinsic_state):
         pass
 
+    def draw(self, canvas):
+        # Draw relative to window size
+        width = canvas.get_width()
+        height = canvas.get_height()
+
+        base_pos = (width/2 - 40, height*2/3 + 10, 40, 20)
+        pygame.draw.rect(canvas, (39, 39, 47), base_pos, 0)

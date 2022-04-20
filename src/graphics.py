@@ -5,30 +5,35 @@ Contains a singleton Graphics class used to manage the window and rendering
 of the simulation.
 """
 
-from re import I
-import tkinter as tk
+import pygame
 
-class Graphics(tk.Tk):
+class Graphics():
     """Manages the graphics of the simulation."""
 
     __window = None
 
     def __new__(cls, *args):
+        """Creates the singleton instance of the graphics.
+
+        Returns: The singleton instance of the graphics.
+        """
         if cls.__window is None:
-            cls.__window = super().__new__(cls, *args)
+            # Initialize pygame
+            cls.__window = pygame.display.set_mode(*args)
+            cls.__window.fill((232, 232, 232))
         return cls.__window
 
-    def display_message(self, message):
-        label = tk.Label(self.__window, text=message) # Display the message in the window
-        label.pack(padx=20, pady=20)
+    @staticmethod
+    def update():
+        """Updates the display
 
-    def render_window(self):
-        """Starts the tkinter objects mainloop."""
-        #TODO: This is a blocking operation, not sure what to do,
-        # maybe make a thread to run the loop? or just call last
-        self.__window.mainloop()
+        Returns: None"""
+        pygame.display.update()
 
 if __name__ == "__main__":
     window = Graphics()
-    window.display_message("Hello World")
-    window.render_window()
+
+    pygame.draw.circle(window, (255, 255, 255), (20, 20), 20, 0)
+
+    while True:
+        Graphics.update()
