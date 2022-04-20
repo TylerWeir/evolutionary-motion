@@ -1,3 +1,2 @@
-# NEAT-motion
-This repo contains explorations of applying the NEAT algorithm to
-agents in a variety of environments.
+# evolutionary-motion
+Train AI agents to perform pole balancing using an evolutionary neural network.
