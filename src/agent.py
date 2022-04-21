@@ -117,7 +117,7 @@ class ConcreteAgent(Agent):
 
     def update(self, delta_t):
         self.move(0)
-        #self.skeleton.move(delta_t)
+        self.skeleton.move(delta_t)
 
     def __draw_pole(self, canvas):
 
@@ -138,6 +138,7 @@ class ConcreteAgent(Agent):
         rads = -atan2(-delta.y, delta.x)
        
         # TODO refactor sin and cos
+        # TODO Still not working quite right
         x1 = radius * sin(rads)
         x2 = -radius * sin(rads)
         x3 = length * cos(rads) - radius * sin(rads)
@@ -165,4 +166,4 @@ class ConcreteAgent(Agent):
         self.__draw_pole(canvas)
 
         # For now also draw the skeleton
-        # self.skeleton.draw(canvas)
+        #self.skeleton.draw(canvas)

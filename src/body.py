@@ -49,13 +49,12 @@ class Skeleton:
         # Iterate through the points and move them according to the Verlet
         # integration routine.
         for i, point in enumerate(self.points):
-            #TODO: Here is where to apply acceleration
             if i not in self.locked_points:
                 acceleration = Vector2((0, 100))
                 current_pos = Vector2(point) # Avoids alias issues
                 old_pos = self.old_points[i]
 
-                self.points[i] = current_pos - old_pos + acceleration*delta_t**2
+                self.points[i] += (current_pos - old_pos)*0.9999 + acceleration*delta_t**2
                 old_pos.update(current_pos)
 
         # After moving the points, satisfy the constraints
@@ -66,7 +65,6 @@ class Skeleton:
 
         Returns: None
         """
-
         # Number of iterations to satisfy constraints
         for _ in range(3):
             #TODO Other worldly constraints go here
