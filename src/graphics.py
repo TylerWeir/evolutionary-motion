@@ -30,6 +30,7 @@ class Graphics():
         Returns: None"""
         pygame.display.update()
 
+
 if __name__ == "__main__":
     window = Graphics()
 

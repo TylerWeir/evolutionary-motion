@@ -7,6 +7,7 @@ in the simulated environment.
 
 import pygame
 from pygame.math import Vector2
+import graphics
 
 class Skeleton:
     """Represents a rigid body structure and it's constraints."""
@@ -32,6 +33,8 @@ class Skeleton:
         else:
             self.old_points = [Vector2(p) for p in old_points]
 
+        self.locked_points = []
+
         # Sticks are defined as (p1, p2, distance)
         self.sticks = [(a, b, self.points[a].distance_to(self.points[b])) for (a, b) in sticks]
 
@@ -47,12 +50,13 @@ class Skeleton:
         # integration routine.
         for i, point in enumerate(self.points):
             #TODO: Here is where to apply acceleration
-            acceleration = (0, 100)
-            current_pos = Vector2(point) # Avoids alias issues
-            old_pos = self.old_points[i]
+            if i not in self.locked_points:
+                acceleration = Vector2((0, 100))
+                current_pos = Vector2(point) # Avoids alias issues
+                old_pos = self.old_points[i]
 
-            self.points[i] = current_pos - old_pos + acceleration*delta_t**2
-            old_pos.update(current_pos)
+                self.points[i] = current_pos - old_pos + acceleration*delta_t**2
+                old_pos.update(current_pos)
 
         # After moving the points, satisfy the constraints
         self.satisfy_constriants()
@@ -79,8 +83,35 @@ class Skeleton:
 
                 # Update the points position according to difference
                 # from the constraint distance
-                pos_1 += delta*0.5*diff
-                pos_2 -= delta*0.5*diff
+                if stick[0] not in self.locked_points:
+                    pos_1 += delta*0.5*diff
+                if stick[1] not in self.locked_points:
+                    pos_2 -= delta*0.5*diff
+
+    def force_pos(self, point_index, position):
+        """Forces a point to a given position.
+
+        Parameters:
+        - point_index (int): The point to force to a position.
+        - position (x, y): The position to force the point to.
+
+        Returns: None
+        """
+        # If the point is not already locked then lock it.
+        if self.locked_points.count(point_index) == 0:
+            self.locked_points.append(point_index)
+
+        # Set the point's position to the new position
+        self.points[point_index] = Vector2(position)
+
+    def free_point(self, point_index):
+        # Remove the point from the locked points list
+        self.locked_points.remove(point_index)
+
+        # Set the point velocity to zero to avoid jumping from
+        # the original pre-locking position
+        self.old_points[point_index].x = self.points[point_index].x
+        self.old_points[point_index].y = self.points[point_index].y
 
     def draw(self, canvas):
         """Draws the skeleton.
@@ -90,4 +121,25 @@ class Skeleton:
 
         Returns: None
         """
-        pass
+
+        # Set the zero to the middle of the screen
+        # two thirds of the way down
+        zero_x = canvas.get_width()/2
+        zero_y = canvas.get_height()*2/3
+        zero = Vector2(zero_x, zero_y)
+
+        red = (255, 0, 0)
+
+        # Draw the points
+        for _, point in enumerate(self.points):
+            pygame.draw.circle(canvas, red, zero+point, 4)
+
+        # Draw the sticks
+        for stick in self.sticks:
+            # End points of the stick
+            pt1 = zero + self.points[stick[0]]
+            pt2 = zero + self.points[stick[1]]
+
+            pygame.draw.line(canvas, red, pt1, pt2)
+
+
