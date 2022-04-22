@@ -54,7 +54,7 @@ class Skeleton:
                 current_pos = Vector2(point) # Avoids alias issues
                 old_pos = self.old_points[i]
 
-                self.points[i] += (current_pos - old_pos)*0.9999 + acceleration*delta_t**2
+                self.points[i] += (current_pos - old_pos)*0.999 + acceleration*delta_t**2
                 old_pos.update(current_pos)
 
         # After moving the points, satisfy the constraints

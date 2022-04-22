@@ -18,7 +18,9 @@ another helpful source: https://sourcemaking.com/design_patterns/flyweight/pytho
 import abc
 import pygame
 from body import Skeleton
+from neural_net import NeuralNet
 from math import atan2, degrees, pi, cos, sin
+from activations import *
 
 class AgentFactory:
     """
@@ -62,6 +64,8 @@ class Agent(metaclass=abc.ABCMeta):
         points = [(0, 0), (0, -160)]
         sticks = [(0,1)]
         self.skeleton = Skeleton(points, sticks)
+        self.net = NeuralNet(1, 1, sigmoid)
+        self.net.add_hidden_layer(3, sigmoid)
 
     @abc.abstractmethod
     def operation(self, extrinsic_state):
@@ -111,6 +115,8 @@ class ConcreteAgent(Agent):
     def move(self, direction):
         # move the base
         self.x += direction
+        self.x += self.net.evaluate([-100])[0]
+        print(str(self.net.evaluate([-1])[0]))
 
         # make the skeleton base match the agent
         self.skeleton.force_pos(0, (self.x, self.y))
@@ -166,4 +172,4 @@ class ConcreteAgent(Agent):
         self.__draw_pole(canvas)
 
         # For now also draw the skeleton
-        #self.skeleton.draw(canvas)
+        self.skeleton.draw(canvas)
