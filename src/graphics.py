@@ -34,7 +34,7 @@ class Graphics():
 if __name__ == "__main__":
     window = Graphics()
 
-    pygame.draw.circle(wibndow, (255, 255, 255), (20, 20), 20, 0)
+    pygame.draw.circle(window, (255, 255, 255), (20, 20), 20, 0)
 
     while True:
         Graphics.update()
