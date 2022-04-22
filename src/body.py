@@ -126,11 +126,9 @@ class Skeleton:
         zero_y = canvas.get_height()*2/3
         zero = Vector2(zero_x, zero_y)
 
-        red = (255, 0, 0)
-
         # Draw the points
         for _, point in enumerate(self.points):
-            pygame.draw.circle(canvas, red, zero+point, 4)
+            pygame.draw.circle(canvas, (0, 255, 0), zero+point, 4)
 
         # Draw the sticks
         for stick in self.sticks:
@@ -138,6 +136,6 @@ class Skeleton:
             pt1 = zero + self.points[stick[0]]
             pt2 = zero + self.points[stick[1]]
 
-            pygame.draw.line(canvas, red, pt1, pt2)
+            pygame.draw.line(canvas, (0, 255, 0), pt1, pt2)
 
 

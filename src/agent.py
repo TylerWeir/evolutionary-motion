@@ -116,7 +116,6 @@ class ConcreteAgent(Agent):
         # move the base
         self.x += direction
         self.x += self.net.evaluate([-100])[0]
-        print(str(self.net.evaluate([-1])[0]))
 
         # make the skeleton base match the agent
         self.skeleton.force_pos(0, (self.x, self.y))
@@ -141,21 +140,26 @@ class ConcreteAgent(Agent):
         base_pos = (self.x + width/2, self.y + height*2/3, 40, 20)
         
         # Find the angle of rotation
-        rads = -atan2(-delta.y, delta.x)
+        rads = atan2(delta.y, delta.x)
        
-        # TODO refactor sin and cos
-        # TODO Still not working quite right
-        x1 = radius * sin(rads)
-        x2 = -radius * sin(rads)
-        x3 = length * cos(rads) - radius * sin(rads)
-        x4 = length * cos(rads) + radius * sin(rads)
+        # This is how new points are calculated 
+        # new_x_point = old_x_point * cos(Angle) - old_y_point * sin(Angle);
+        # new_y_point = old_y_point * cos(Angle) + old_x_point * sin(Angle);
+        sin_rads = sin(rads)
+        cos_rads = cos(rads)
+
+        x1 = radius * sin_rads
+        x2 = -radius * sin_rads
+        x3 = length * cos_rads - radius * sin_rads
+        x4 = length * cos_rads + radius * sin_rads
         
-        y1 = radius * cos(rads)
-        y2 = radius * cos(rads)
-        y3 = length * sin(rads) + radius*cos(rads)
-        y4 = length * sin(rads) - radius*cos(rads)
+        y1 = -radius * cos_rads
+        y2 = radius * cos_rads
+        y3 = radius * cos_rads + length * sin_rads
+        y4 = -radius * cos_rads + length * sin_rads
 
         points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
+
         # map the offset through the points
         points = [(x + base_pos[0], y + base_pos[1]) for (x, y) in points]
         
@@ -172,4 +176,4 @@ class ConcreteAgent(Agent):
         self.__draw_pole(canvas)
 
         # For now also draw the skeleton
-        self.skeleton.draw(canvas)
+        #self.skeleton.draw(canvas)
