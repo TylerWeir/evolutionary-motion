@@ -21,6 +21,7 @@ from body import Skeleton
 from neural_net import NeuralNet
 from math import atan2, degrees, pi, cos, sin
 from activations import *
+from scorer import Scorer
 
 class AgentFactory:
     """
@@ -64,14 +65,13 @@ class Agent(metaclass=abc.ABCMeta):
         points = [(0, 0), (0, -160)]
         sticks = [(0,1)]
         self.skeleton = Skeleton(points, sticks)
+
+        # Define a score keeper for the agent
+        self.scorer = Scorer()
+
+        # Define a NeuralNet for the agent
         self.net = NeuralNet(1, 1, sigmoid)
         self.net.add_hidden_layer(3, sigmoid)
-
-    @abc.abstractmethod
-    def operation(self, extrinsic_state):
-        """Description"""
-        # TODO: this is a placeholder function. It will likely be replaced with 
-        # functions such as `move` or `draw` etc.
 
     @abc.abstractmethod
     def move(self, direction):
@@ -109,9 +109,6 @@ class ConcreteAgent(Agent):
     A ConcreteAgent object must be sharable. Any state it stores must be 
     intrinsic; that is, it must be independent of the ConcreteAgent's context."""
 
-    def operation(self, extrinsic_state):
-        pass
-
     def move(self, direction):
         # move the base
         self.x += direction
@@ -121,8 +118,13 @@ class ConcreteAgent(Agent):
         self.skeleton.force_pos(0, (self.x, self.y))
 
     def update(self, delta_t):
-        self.move(0)
-        self.skeleton.move(delta_t)
+        # only update if the pole is airborne
+        if not self.scorer.is_done():
+            self.move(0)
+            self.skeleton.move(delta_t)
+            self.scorer.update(self.skeleton)
+        else:
+            print("The score is: ", self.scorer.get_score())
 
     def __draw_pole(self, canvas):
 
