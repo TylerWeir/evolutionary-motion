@@ -68,6 +68,7 @@ class Agent(metaclass=abc.ABCMeta):
 
         # Define a score keeper for the agent
         self.scorer = Scorer()
+        self.score = None
 
         # Define a NeuralNet for the agent
         self.net = NeuralNet(1, 1, sigmoid)
@@ -123,8 +124,10 @@ class ConcreteAgent(Agent):
             self.move(0)
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
-        else:
-            print("The score is: ", self.scorer.get_score())
+
+        # Assign the score if done updating and no score yet
+        elif self.score == None:
+            self.score = self.scorer.get_score()
 
     def __draw_pole(self, canvas):
 
