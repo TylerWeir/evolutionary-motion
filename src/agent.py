@@ -128,6 +128,7 @@ class ConcreteAgent(Agent):
         # Assign the score if done updating and no score yet
         elif self.score == None:
             self.score = self.scorer.get_score()
+            print("The agent's score is: ", self.score)
 
     def __draw_pole(self, canvas):
 

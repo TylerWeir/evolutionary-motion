@@ -4,7 +4,9 @@ scorer.py
 This class represents a scoreing module to evaluate the fitness of 
 a given agent's neural net.
 
-Currently, score is defined as miliseconds of the pole above horizontal.
+Currently, score is defined as the duration in milliseconds of the pole above
+the horizontal with the total distance travelled by the base subtracted off
+to encourage minimal effort solutions.
 """
 
 from time import time
@@ -19,6 +21,9 @@ class Scorer:
         self.start_time = None
         self.end_time = None
         self.running = False
+
+        self.__last_pos = None
+        self.__total_dist = 0
 
     def start(self):
         """Begins the scoring period.
@@ -43,6 +48,10 @@ class Scorer:
 
         # only scores while running
         if self.running:
+
+            # Update the total distance traveled by the base
+            self.__total_dist += self.__get_dist_moved(skeleton)
+
             # get the end points of the skeleton
             pt1 = skeleton.points[0]
             pt2 = skeleton.points[1]
@@ -52,6 +61,27 @@ class Scorer:
             if delta.y >= 0:
                 self.end_time = int(time() * 1000) # Milliseconds
                 self.running = False
+
+    def __get_dist_moved(self, skeleton):
+        """Returns the distance moved since the last recorded position.
+
+        Parameters:
+        - skeleton (Skeleton): The skeleton that is being scored.
+
+        Return: (int) Euclidean distance from the last position.
+        """
+
+        current_pos = skeleton.points[0]
+
+        # Add a last position if there isn't one
+        if self.__last_pos == None:
+            self.__last_pos = Vector2(current_pos)
+            return 0
+
+        dist = self.__last_pos.distance_to(current_pos)
+        self.__last_pos = Vector2(current_pos)
+        
+        return int(dist)
 
     def is_done(self):
         """Returns the status of the scorer
@@ -63,7 +93,7 @@ class Scorer:
         return False
 
     def get_score(self):
-        """Returns the recorded score.
+        """Returns the recorded score calculated as duration - distance travelled.
 
         Returns: The recorded score (int) or -1 if the score is not yet available.
         """
@@ -71,4 +101,7 @@ class Scorer:
         if not self.is_done():
             return -1
 
-        return self.end_time - self.start_time
+        duration = self.end_time - self.start_time
+        score = duration - self.__total_dist
+
+        return score
