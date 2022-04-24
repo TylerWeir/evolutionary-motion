@@ -7,7 +7,7 @@ to balance a pole.
 """
 import pygame
 
-from constants import TRACK_WIDTH, AGENT_BASE_HEIGHT
+from constants import TRACK_WIDTH, AGENT_BASE_HEIGHT, AGENT_BASE_WIDTH
 
 
 class Environment:
@@ -28,5 +28,5 @@ class Environment:
         surface.fill((255, 255, 255))
 
         # draw track
-        pygame.draw.rect(surface, (0, 0, 0), (surface.get_width() / 2 - TRACK_WIDTH / 2, surface.get_height() * 2 / 3 + AGENT_BASE_HEIGHT / 2, TRACK_WIDTH, AGENT_BASE_HEIGHT / 2))
+        pygame.draw.rect(surface, (0, 0, 0), (surface.get_width() / 2 - TRACK_WIDTH / 2 - AGENT_BASE_WIDTH / 2, surface.get_height() * 2 / 3 + AGENT_BASE_HEIGHT / 2, TRACK_WIDTH + AGENT_BASE_WIDTH, AGENT_BASE_HEIGHT / 2))
 
