@@ -19,8 +19,7 @@ class Simulation:
         self.screen = graphics.Graphics()
 
         # Initialize the agent factory and produce an agent
-        self.agentFactory = agent.AgentFactory()
-        self.agentFactory.get_agent(1)
+        self.agent = agent.Agent()
 
         self.environment = environment.Environment()
 
@@ -31,7 +30,6 @@ class Simulation:
         pressed =  pygame.key.get_pressed()
 
         while True:
-
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
@@ -40,19 +38,18 @@ class Simulation:
                         pygame.quit()
                         return
                     if event.key == K_LEFT:
-                        agent = self.agentFactory.get_agent(1)
-                        agent.move(-1)
+                        self.agent.move(-1)
                     if event.key == K_RIGHT:
-                        agent = self.agentFactory.get_agent(1)
-                        agent.move(1)
+                        self.agent.move(1)
 
             # Update agent1
-            self.agentFactory.get_agent(1).update(1/60)
+            self.agent.update(1/60)
+
             # Draw the environment again
             self.environment.draw(self.screen)
 
             # Draw agent1
-            self.agentFactory.get_agent(1).draw(self.screen)
+            self.agent.draw(self.screen)
             graphics.Graphics.update()
 
 if __name__ == "__main__":
