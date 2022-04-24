@@ -179,7 +179,12 @@ class Agent():
         width = canvas.get_width()
         height = canvas.get_height()
 
-        base_pos = (self.pos.x + width/2 - 20, self.pos.y + height*2/3 - 10, AGENT_BASE_WIDTH, AGENT_BASE_HEIGHT)
+        base_pos = (
+            self.pos.x + width/2 - 20,
+            self.pos.y + height*2/3 - 10,
+            AGENT_BASE_WIDTH,
+            AGENT_BASE_HEIGHT
+        )
         pygame.draw.rect(canvas, self.base_color, base_pos, 0)
 
         self.__draw_pole(canvas)
