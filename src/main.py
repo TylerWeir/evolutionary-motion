@@ -23,6 +23,7 @@ class Simulation:
 
         self.environment = environment.Environment()
 
+
     def run(self):
         """Runs the program."""
 
@@ -51,6 +52,7 @@ class Simulation:
             # Draw agent1
             self.agent.draw(self.screen)
             graphics.Graphics.update()
+
 
 if __name__ == "__main__":
     my_sim = Simulation()

@@ -38,6 +38,7 @@ class NeuralNet:
         # Does the input layer use activations? TODO
         self.activations = [None, sigmoid]
 
+
     def add_hidden_layer(self, size, activation):
         # Add layer to nodes 
         self.nodes.insert(-1, np.zeros(size))
@@ -55,6 +56,7 @@ class NeuralNet:
 
         # Weights out of the hidden layer
         self.weights.append(np.random.rand(self.output_size, size))
+
 
     def evaluate(self, data):
         """Passes `data` into the input layer of the net and returns
@@ -83,11 +85,13 @@ class NeuralNet:
         # Return the activations of the output layer
         return self.nodes[-1][:]
 
+
     def train(self, num_epochs, learning_rate):
         """Trains the net for `num_epochs` at `learning_rate`"""
         #TODO
         # this is not needed for our project
         return None
+
 
     def __calc_node_color(self, value):
         """Helper function to calculate the hexvalue of a node color
@@ -104,6 +108,7 @@ class NeuralNet:
 
         # Convert rgb to hex
         return('#%02x%02x%02x' % (red, green, blue))
+
 
     def draw(self, canvas):
         """Draws a graph like representation of the current state of

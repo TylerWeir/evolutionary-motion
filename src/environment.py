@@ -13,6 +13,7 @@ class Environment:
         """Default constructor."""
         pass
 
+
     def draw(self, surface):
         """Draws the environment to the given canvas.
 

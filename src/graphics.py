@@ -12,6 +12,7 @@ class Graphics():
 
     __window = None
 
+
     def __new__(cls, *args):
         """Creates the singleton instance of the graphics.
 
@@ -22,6 +23,7 @@ class Graphics():
             cls.__window = pygame.display.set_mode(*args)
             cls.__window.fill((232, 232, 232))
         return cls.__window
+
 
     @staticmethod
     def update():

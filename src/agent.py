@@ -16,9 +16,10 @@ another helpful source: https://sourcemaking.com/design_patterns/flyweight/pytho
 """
 import abc
 import pygame
+from pygame.math import Vector2
 from body import Skeleton
 from neural_net import NeuralNet
-from math import atan2, degrees, pi, cos, sin
+from math import atan2, degrees, pi, cos, sin, tanh
 from activations import *
 from scorer import Scorer
 
@@ -32,10 +33,15 @@ class Agent():
 
         Returns: None
         """
-        # These are abstract positions which are later
+        # An abstract position which is later
         # mapped to the center of the screen as zero.
-        self.x = 0
-        self.y = 0
+        self.pos = Vector2((0,0))
+        # self.x = 0
+        # self.y = 0
+
+        self.vel = Vector2((0,0))
+
+        self.move_strength = 0.1 # how strong the force is when the player tries to move
 
         # Define the skeleton backing the agent
         points = [(0, 0), (0, -160)]
@@ -50,21 +56,37 @@ class Agent():
         self.net = NeuralNet(1, 1, sigmoid)
         self.net.add_hidden_layer(3, sigmoid)
 
-    def move(self, direction):
-        """Moves the agent in the indicated direction.
+
+    def move(self, x):
+        """Moves the agent by the indicated amount on the x axis
 
         Parameters:
-        - direction (int): The direction and magnitude to move with.
+        - x (number): The horizontal distance to move
 
         Returns: None
         """
 
         # move the base
-        self.x += direction
-        self.x += self.net.evaluate([-100])[0]
+        self.pos.x += x
+        self.pos.x += self.net.evaluate([-100])[0]
 
         # make the skeleton base match the agent
-        self.skeleton.force_pos(0, (self.x, self.y))
+        self.skeleton.force_pos(0, self.pos)
+
+    
+    def apply_force(self, x_force):
+        """Applies a force to the agent
+
+        Parameters:
+        - x_force (number): The force to move the agent with along the x-axis (can be negative)
+
+        Returns: None
+        """
+
+        self.vel.x += x_force * self.move_strength
+        # friction would go here though I think that's handled elsewhere
+        self.move(self.vel.x)
+
 
     def update(self, delta_t):
         """Updates the agent given the time step.
@@ -76,7 +98,10 @@ class Agent():
 
         # only update if the pole is airborne
         if not self.scorer.is_done():
-            self.move(0)
+            # get the direction of effort
+            effort_vector = self.net.evaluate(np.array([0,]))
+            move_force = tanh(effort_vector[0])
+            self.apply_force(move_force)
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
 
@@ -84,6 +109,7 @@ class Agent():
         elif self.score == None:
             self.score = self.scorer.get_score()
             print("The agent's score is: ", self.score)
+
 
     def __draw_pole(self, canvas):
 
@@ -98,7 +124,7 @@ class Agent():
         # TODO this needs refactoring
         width = canvas.get_width()
         height = canvas.get_height()
-        base_pos = (self.x + width/2, self.y + height*2/3, 40, 20)
+        base_pos = (self.pos.x + width/2, self.pos.y + height*2/3, 40, 20)
         
         # Find the angle of rotation
         rads = atan2(delta.y, delta.x)
@@ -126,6 +152,7 @@ class Agent():
         
         pygame.draw.polygon(canvas, (226, 41, 55), points)
 
+
     def draw(self, canvas):
         """Draws the agent to the given canvas.
 
@@ -139,7 +166,7 @@ class Agent():
         width = canvas.get_width()
         height = canvas.get_height()
 
-        base_pos = (self.x + width/2 - 20, self.y + height*2/3 - 10, 40, 20)
+        base_pos = (self.pos.x + width/2 - 20, self.pos.y + height*2/3 - 10, 40, 20)
         pygame.draw.rect(canvas, (39, 39, 47), base_pos, 0)
 
         self.__draw_pole(canvas)

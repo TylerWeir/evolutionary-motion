@@ -34,6 +34,7 @@ class Scorer:
         self.start_time = int(time()*1000)
         self.running = True
 
+
     def update(self, skeleton):
         """Updates the score.
 
@@ -62,6 +63,7 @@ class Scorer:
                 self.end_time = int(time() * 1000) # Milliseconds
                 self.running = False
 
+
     def __get_dist_moved(self, skeleton):
         """Returns the distance moved since the last recorded position.
 
@@ -83,6 +85,7 @@ class Scorer:
         
         return int(dist)
 
+
     def is_done(self):
         """Returns the status of the scorer
 
@@ -91,6 +94,7 @@ class Scorer:
         if self.start_time != None and self.end_time != None and not self.running:
             return True
         return False
+
 
     def get_score(self):
         """Returns the recorded score calculated as duration - distance travelled.
@@ -102,6 +106,8 @@ class Scorer:
             return -1
 
         duration = self.end_time - self.start_time
+
+        # subtract total distance to penalize the agent for moving around too much
         score = duration - self.__total_dist
 
         return score

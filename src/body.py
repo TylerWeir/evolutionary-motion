@@ -38,6 +38,7 @@ class Skeleton:
         # Sticks are defined as (p1, p2, distance)
         self.sticks = [(a, b, self.points[a].distance_to(self.points[b])) for (a, b) in sticks]
 
+
     def move(self, delta_t):
         """Verlet Integration step.
 
@@ -59,6 +60,7 @@ class Skeleton:
 
         # After moving the points, satisfy the constraints
         self.satisfy_constriants()
+
 
     def satisfy_constriants(self):
         """Satisfys bounds and stick constraints between points.
@@ -86,7 +88,8 @@ class Skeleton:
                 if stick[1] not in self.locked_points:
                     pos_2 -= delta*0.5*diff
 
-    def force_pos(self, point_index, position):
+
+    def force_pos(self, point_index, position : Vector2):
         """Forces a point to a given position.
 
         Parameters:
@@ -99,8 +102,9 @@ class Skeleton:
         if self.locked_points.count(point_index) == 0:
             self.locked_points.append(point_index)
 
-        # Set the point's position to the new position
-        self.points[point_index] = Vector2(position)
+        # Move the point to the new position
+        self.points[point_index] = position
+
 
     def free_point(self, point_index):
         # Remove the point from the locked points list
@@ -110,6 +114,7 @@ class Skeleton:
         # the original pre-locking position
         self.old_points[point_index].x = self.points[point_index].x
         self.old_points[point_index].y = self.points[point_index].y
+
 
     def draw(self, canvas):
         """Draws the skeleton.
