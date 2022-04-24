@@ -5,7 +5,6 @@ Date: Feb 23, 2022
 """
 import numpy as np
 
-
 def sigmoid(arg):
     """The sigmoid activation function returns the value of the 
     sigmoid function for the given argument value."""
@@ -16,3 +15,7 @@ def relu(arg):
     """The Relu activation function returns 0 if the arg is less than
     0, and the identity function otherwise."""
     return max(0, arg)
+
+
+def tanh(arg):
+    return np.tanh(arg)
