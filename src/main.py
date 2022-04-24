@@ -3,27 +3,29 @@ main.py
 
 This class is used to create an instance of the simulation.
 """
+
+import sys
+import argparse
 from curses import KEY_DOWN
+
+from pygame.locals import *
+
 import environment
 import graphics
 import agent
 import pygame
-from pygame.locals import *
-
-
-NUM_AGENTS = 10
 
 
 class Simulation:
     """Creates a simulated environment containing ANN controlled agents."""
 
-    def __init__(self):
+    def __init__(self, num_agents):
         """Default constuctor."""
         # Initialize the graphics
         self.screen = graphics.Graphics()
 
         # create list of agents
-        self.agents = [agent.Agent() for _ in range(NUM_AGENTS)]
+        self.agents = [agent.Agent() for _ in range(num_agents)]
 
         self.environment = environment.Environment()
 
@@ -62,6 +64,18 @@ class Simulation:
             graphics.Graphics.update()
 
 
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-n", "--numagents", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of agents to simulate")
+    args = parser.parse_args()
+    
+    if args.numagents >= 1000:
+        if input("Are you sure you want to run the simulation with over 1000 agents? (Y/n) ").lower() != "y":
+            exit(0)
+
+    sim = Simulation(args.numagents)
+    sim.run()
+
+
 if __name__ == "__main__":
-    my_sim = Simulation()
-    my_sim.run()
+    main()
