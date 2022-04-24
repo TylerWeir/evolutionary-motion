@@ -15,13 +15,19 @@ another helpful source: https://sourcemaking.com/design_patterns/flyweight/pytho
 
 """
 import abc
+import random
+from math import atan2, cos, sin, tanh
+
 import pygame
 from pygame.math import Vector2
+
 from body import Skeleton
 from neural_net import NeuralNet
-from math import atan2, degrees, pi, cos, sin, tanh
 from activations import *
 from scorer import Scorer
+from environment import TRACK_WIDTH
+from constants import *
+
 
 class Agent():
     """Agent defines a pole balancing entity. Each agent is made
@@ -36,12 +42,10 @@ class Agent():
         # An abstract position which is later
         # mapped to the center of the screen as zero.
         self.pos = Vector2((0,0))
-        # self.x = 0
-        # self.y = 0
 
         self.vel = Vector2((0,0))
 
-        self.move_strength = 0.1 # how strong the force is when the player tries to move
+        self.move_strength = 1 # how strong the force is when the player tries to move
 
         # Define the skeleton backing the agent
         points = [(0, 0), (0, -160)]
@@ -56,6 +60,9 @@ class Agent():
         self.net = NeuralNet(1, 1, sigmoid)
         self.net.add_hidden_layer(3, sigmoid)
 
+        self.base_color = tuple([random.randint(35, 100) for _ in range(3)])
+        self.rod_color = tuple([random.randint(100, 180) for _ in range(3)])
+
 
     def move(self, x):
         """Moves the agent by the indicated amount on the x axis
@@ -67,14 +74,13 @@ class Agent():
         """
 
         # move the base
-        self.pos.x += x
-        self.pos.x += self.net.evaluate([-100])[0]
+        self.pos.x = max(min(self.pos.x + x, TRACK_WIDTH / 2), -TRACK_WIDTH / 2)
 
         # make the skeleton base match the agent
         self.skeleton.force_pos(0, self.pos)
 
     
-    def apply_force(self, x_force):
+    def apply_force(self, x_force, delta_t):
         """Applies a force to the agent
 
         Parameters:
@@ -83,7 +89,7 @@ class Agent():
         Returns: None
         """
 
-        self.vel.x += x_force * self.move_strength
+        self.vel.x += x_force * self.move_strength * delta_t
         # friction would go here though I think that's handled elsewhere
         self.move(self.vel.x)
 
@@ -99,9 +105,11 @@ class Agent():
         # only update if the pole is airborne
         if not self.scorer.is_done():
             # get the direction of effort
-            effort_vector = self.net.evaluate(np.array([0,]))
+            rod_tip_pos_relative_to_base = self.skeleton.points[1][0] - self.skeleton.points[0][0]
+            effort_vector = self.net.evaluate(np.array([rod_tip_pos_relative_to_base,]))
             move_force = tanh(effort_vector[0])
-            self.apply_force(move_force)
+            # print(f"{rod_tip_pos_relative_to_base=} {effort_vector=} {move_force=}")
+            self.apply_force(move_force, delta_t)
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
 
@@ -109,6 +117,10 @@ class Agent():
         elif self.score == None:
             self.score = self.scorer.get_score()
             print("The agent's score is: ", self.score)
+
+
+    def nn_weights_string(self):
+        return str(self.net)
 
 
     def __draw_pole(self, canvas):
@@ -150,7 +162,8 @@ class Agent():
         # map the offset through the points
         points = [(x + base_pos[0], y + base_pos[1]) for (x, y) in points]
         
-        pygame.draw.polygon(canvas, (226, 41, 55), points)
+        # pygame.draw.polygon(canvas, (226, 41, 55), points)
+        pygame.draw.polygon(canvas, self.rod_color, points)
 
 
     def draw(self, canvas):
@@ -166,8 +179,8 @@ class Agent():
         width = canvas.get_width()
         height = canvas.get_height()
 
-        base_pos = (self.pos.x + width/2 - 20, self.pos.y + height*2/3 - 10, 40, 20)
-        pygame.draw.rect(canvas, (39, 39, 47), base_pos, 0)
+        base_pos = (self.pos.x + width/2 - 20, self.pos.y + height*2/3 - 10, AGENT_BASE_WIDTH, AGENT_BASE_HEIGHT)
+        pygame.draw.rect(canvas, self.base_color, base_pos, 0)
 
         self.__draw_pole(canvas)
 

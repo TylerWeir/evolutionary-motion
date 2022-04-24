@@ -36,7 +36,7 @@ class NeuralNet:
         # A list containing the activation function specified for 
         # each layer of nodes.  
         # Does the input layer use activations? TODO
-        self.activations = [None, sigmoid]
+        self.activations = [None, tanh]
 
 
     def add_hidden_layer(self, size, activation):
@@ -52,10 +52,10 @@ class NeuralNet:
 
         # Weights into the hidden layer
         into_layer = len(self.nodes[-3])
-        self.weights.append(np.random.rand(size, into_layer))
+        self.weights.append(np.random.rand(size, into_layer) * 2 - 1)
 
         # Weights out of the hidden layer
-        self.weights.append(np.random.rand(self.output_size, size))
+        self.weights.append(np.random.rand(self.output_size, size) * 2 - 1)
 
 
     def evaluate(self, data):
@@ -108,6 +108,10 @@ class NeuralNet:
 
         # Convert rgb to hex
         return('#%02x%02x%02x' % (red, green, blue))
+
+
+    def __str__(self):
+        return str(self.weights)
 
 
     def draw(self, canvas):

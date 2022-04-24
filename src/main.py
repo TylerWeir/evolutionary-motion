@@ -10,6 +10,10 @@ import agent
 import pygame
 from pygame.locals import *
 
+
+NUM_AGENTS = 10
+
+
 class Simulation:
     """Creates a simulated environment containing ANN controlled agents."""
 
@@ -18,8 +22,8 @@ class Simulation:
         # Initialize the graphics
         self.screen = graphics.Graphics()
 
-        # Initialize the agent factory and produce an agent
-        self.agent = agent.Agent()
+        # create list of agents
+        self.agents = [agent.Agent() for _ in range(NUM_AGENTS)]
 
         self.environment = environment.Environment()
 
@@ -42,15 +46,19 @@ class Simulation:
                         self.agent.move(-1)
                     if event.key == K_RIGHT:
                         self.agent.move(1)
+                    
+                    if event.key == K_p:
+                        print(self.agent.nn_weights_string())
 
-            # Update agent1
-            self.agent.update(1/60)
+            # update agents
+            [a.update(1/60) for a in self.agents]
 
             # Draw the environment again
             self.environment.draw(self.screen)
 
-            # Draw agent1
-            self.agent.draw(self.screen)
+            # draw agents
+            [a.draw(self.screen) for a in self.agents]
+            
             graphics.Graphics.update()
 
 
