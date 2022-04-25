@@ -89,7 +89,11 @@ class Agent():
         Returns: None
         """
 
-        self.vel.x += x_force * self.move_strength * delta_t
+        force_noise = 0.2
+
+        net_force = x_force + random.uniform(-force_noise, force_noise) # add some noise to the force
+
+        self.vel.x += net_force * self.move_strength * delta_t
         # friction would go here though I think that's handled elsewhere
         self.move(self.vel.x)
 

@@ -5,6 +5,7 @@ Uses points and sticks to define skeletons for the agent's
 in the simulated environment.
 """
 
+import random
 import pygame
 from pygame.math import Vector2
 import graphics
@@ -51,7 +52,8 @@ class Skeleton:
         # integration routine.
         for i, point in enumerate(self.points):
             if i not in self.locked_points:
-                acceleration = Vector2((0, 100))
+                acc_noise = random.uniform(-10, 10)
+                acceleration = Vector2((0 + acc_noise, 100 + acc_noise))
                 current_pos = Vector2(point) # Avoids alias issues
                 old_pos = self.old_points[i]
 
@@ -59,10 +61,10 @@ class Skeleton:
                 old_pos.update(current_pos)
 
         # After moving the points, satisfy the constraints
-        self.satisfy_constriants()
+        self.satisfy_constraints()
 
 
-    def satisfy_constriants(self):
+    def satisfy_constraints(self):
         """Satisfys bounds and stick constraints between points.
 
         Returns: None
