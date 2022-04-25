@@ -6,9 +6,12 @@ in the simulated environment.
 """
 
 import random
+
 import pygame
 from pygame.math import Vector2
+
 import graphics
+from constants import *
 
 class Skeleton:
     """Represents a rigid body structure and it's constraints."""
@@ -52,7 +55,7 @@ class Skeleton:
         # integration routine.
         for i, point in enumerate(self.points):
             if i not in self.locked_points:
-                acc_noise = random.uniform(-10, 10)
+                acc_noise = random.uniform(-ROD_ACC_NOISE, ROD_ACC_NOISE)
                 acceleration = Vector2((0 + acc_noise, 100 + acc_noise))
                 current_pos = Vector2(point) # Avoids alias issues
                 old_pos = self.old_points[i]

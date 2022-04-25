@@ -48,13 +48,12 @@ class Agent():
         self.move_strength = 1 # how strong the force is when the player tries to move
 
         # Define the skeleton backing the agent
-        points = [(0, 0), (0, -160)]
+        points = [(0, 0), (1, -160)]
         sticks = [(0,1)]
         self.skeleton = Skeleton(points, sticks)
 
         # Define a score keeper for the agent
         self.scorer = Scorer()
-        self.score = None
 
         # Define a NeuralNet for the agent
         self.net = NeuralNet(1, 1, tanh)
@@ -89,9 +88,7 @@ class Agent():
         Returns: None
         """
 
-        force_noise = 0.2
-
-        net_force = x_force + random.uniform(-force_noise, force_noise) # add some noise to the force
+        net_force = x_force + random.uniform(-BASE_FORCE_NOISE, BASE_FORCE_NOISE) # add some noise to the force
 
         self.vel.x += net_force * self.move_strength * delta_t
         # friction would go here though I think that's handled elsewhere
@@ -117,14 +114,41 @@ class Agent():
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
 
-        # Assign the score if done updating and no score yet
-        elif self.score == None:
-            self.score = self.scorer.get_score()
-            print("The agent's score is: ", self.score)
-
 
     def nn_weights_string(self):
         return str(self.net)
+
+
+    def get_score(self):
+        return self.scorer.get_score()
+
+    
+    def new_copy(self, preserve_color=False):
+        a = Agent()
+        a.net = self.net.copy()
+        if preserve_color:
+            a.base_color = self.base_color
+            a.rod_color = self.rod_color
+        
+        return a
+    
+
+    def mutated_copy(self, mutation_amount=1, preserve_color=False):
+        a = Agent()
+        a.net = self.net.noisy_copy(std_dev=mutation_amount)
+        if preserve_color:
+            a.base_color = self.base_color
+            a.rod_color = self.rod_color
+        
+        return a
+
+
+    def copy(self, preserve_color=False):
+        a = self.new_copy(preserve_color=preserve_color)
+        a.pos = Vector2(self.pos)
+        a.vel = Vector2(self.vel)
+
+        return a
 
 
     def __draw_pole(self, canvas):
@@ -195,3 +219,7 @@ class Agent():
 
         # For now also draw the skeleton
         #self.skeleton.draw(canvas)
+
+
+    def __lt__(self, other):
+        return True

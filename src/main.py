@@ -4,16 +4,14 @@ main.py
 This class is used to create an instance of the simulation.
 """
 
-import sys
 import argparse
-from curses import KEY_DOWN
 
+import pygame
 from pygame.locals import *
 
 import environment
 import graphics
 import agent
-import pygame
 
 
 class Simulation:
@@ -22,6 +20,7 @@ class Simulation:
     def __init__(self, num_agents, do_graphics=True):
         """Default constuctor."""
         self.do_graphics = do_graphics
+        self.num_agents = num_agents
         if do_graphics:
             # Initialize the graphics
             self.screen = graphics.Graphics()
@@ -30,9 +29,16 @@ class Simulation:
         # create list of agents
         self.agents = [agent.Agent() for _ in range(num_agents)]
 
+        self.mutation_amount = 1 # standard deviation in gaussian noise
+        self.mutation_decay = 0.98
+
+        self.epochs = 50
+        self.epochs_elapsed = 0
+
+        self.best_agent = None
+        self.best_score = -10000000
+
         
-
-
     def run(self):
         """Runs the program."""
 
@@ -66,9 +72,27 @@ class Simulation:
                 # draw agents
                 [a.draw(self.screen) for a in self.agents]
                 graphics.Graphics.update()
-            else:
-                # if we're not doing graphics just end the program once the agents are done
-                if all([a.scorer.is_done() for a in self.agents]):
+
+            # if all the agents are done, prepare next generation
+            if all([a.scorer.is_done() for a in self.agents]):
+                scored_agents = [(a.get_score(), a) for a in self.agents]
+                scored_agents.sort()
+                self.agents = [scored_agents[-1][1].mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                
+                best_this_gen = scored_agents[-1][0]
+
+                print(f"Best score from generation {self.epochs_elapsed}: {best_this_gen}")
+
+                self.mutation_amount *= self.mutation_decay
+
+                if best_this_gen > self.best_score:
+                    self.best_score = best_this_gen
+                    self.best_agent = scored_agents[-1][1].copy()
+                    print("New best agent network: ")
+                    print(self.best_agent.net)
+
+                self.epochs_elapsed += 1
+                if self.epochs_elapsed >= self.epochs:
                     break
             
 

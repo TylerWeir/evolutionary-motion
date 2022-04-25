@@ -43,6 +43,20 @@ class NeuralNet:
         nn = NeuralNet(self.input_size, self.output_size, self.activations[1])
         nn.weights = [np.copy(x) for x in self.weights]
         nn.nodes = [np.copy(x) for x in self.nodes]
+        nn.activations = [x for x in self.activations]
+        return nn
+
+    
+    def noisy_copy(self, std_dev=1):
+        nn = self.copy()
+        
+        for weight in nn.weights:
+            weight += np.random.normal(0, std_dev, weight.shape)
+        
+        for layer in nn.nodes:
+            layer += np.random.normal(0, std_dev, layer.shape)
+        
+        return nn
 
 
     def add_hidden_layer(self, size, activation):
@@ -117,7 +131,7 @@ class NeuralNet:
 
 
     def __str__(self):
-        return str(self.weights)
+        return str(self.weights) + str(self.nodes) + str(self.activations)
 
 
     def draw(self, canvas):
