@@ -57,7 +57,6 @@ class Simulation:
         # Turn on highlighting for the new active agent
         self.agents[self.active_agent].is_highlighted = True
 
-
         
     def run(self):
         """Runs the program."""
@@ -98,6 +97,7 @@ class Simulation:
                 scored_agents = [(a.get_score(), a) for a in self.agents]
                 scored_agents.sort()
                 self.agents = [scored_agents[-1][1].mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                self.switch_active_agent(0)
                 
                 best_this_gen = scored_agents[-1][0]
 
