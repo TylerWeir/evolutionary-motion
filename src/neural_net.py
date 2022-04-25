@@ -36,7 +36,13 @@ class NeuralNet:
         # A list containing the activation function specified for 
         # each layer of nodes.  
         # Does the input layer use activations? TODO
-        self.activations = [None, tanh]
+        self.activations = [None, activation]
+
+    
+    def copy(self):
+        nn = NeuralNet(self.input_size, self.output_size, self.activations[1])
+        nn.weights = [np.copy(x) for x in self.weights]
+        nn.nodes = [np.copy(x) for x in self.nodes]
 
 
     def add_hidden_layer(self, size, activation):

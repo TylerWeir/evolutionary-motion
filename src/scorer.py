@@ -18,37 +18,25 @@ class Scorer:
 
     def __init__(self):
         """Default constructor."""
-        self.start_time = None
-        self.end_time = None
-        self.running = False
+        self.frames_alive = 0
+        self.running = True
 
         self.__last_pos = None
         self.__total_dist = 0
-
-    def start(self):
-        """Begins the scoring period.
-
-        Returns: None
-        """
-        # Convert time to milliseconds
-        self.start_time = int(time()*1000)
-        self.running = True
 
 
     def update(self, skeleton):
         """Updates the score.
 
         Parameters:
-        - body (Body): The agent's body definition
+        - skeleton (Skeleton): The agent's body definition
 
         Returns: None
         """
-        # Starts scoring if not already
-        if self.start_time == None:
-            self.start()
 
         # only scores while running
         if self.running:
+            self.frames_alive += 1
 
             # Update the total distance traveled by the base
             self.__total_dist += self.__get_dist_moved(skeleton)
@@ -60,7 +48,6 @@ class Scorer:
 
             # scoring should end once pt2 is beneath pt1
             if delta.y >= 0:
-                self.end_time = int(time() * 1000) # Milliseconds
                 self.running = False
 
 
@@ -89,25 +76,14 @@ class Scorer:
     def is_done(self):
         """Returns the status of the scorer
 
-        Returns: True if the scorer is actively running, False otherwise.
+        Returns: True if the scorer is no longer running,  False otherwise.
         """
-        if self.start_time != None and self.end_time != None and not self.running:
-            return True
-        return False
+        return not self.running
 
 
     def get_score(self):
         """Returns the recorded score calculated as duration - distance travelled.
 
-        Returns: The recorded score (int) or -1 if the score is not yet available.
+        Returns: The recorded score (int) so far
         """
-
-        if not self.is_done():
-            return -1
-
-        duration = self.end_time - self.start_time
-
-        # subtract total distance to penalize the agent for moving around too much
-        score = duration - self.__total_dist
-
-        return score
+        return self.frames_alive - self.__total_dist

@@ -16,7 +16,7 @@ another helpful source: https://sourcemaking.com/design_patterns/flyweight/pytho
 """
 import abc
 import random
-from math import atan2, cos, sin, tanh
+from math import atan2, cos, sin
 
 import pygame
 from pygame.math import Vector2
@@ -57,10 +57,10 @@ class Agent():
         self.score = None
 
         # Define a NeuralNet for the agent
-        self.net = NeuralNet(1, 1, sigmoid)
-        self.net.add_hidden_layer(3, sigmoid)
+        self.net = NeuralNet(1, 1, tanh)
+        self.net.add_hidden_layer(3, tanh)
 
-        self.base_color = tuple([random.randint(35, 100) for _ in range(3)])
+        self.base_color = tuple([random.randint(40, 120) for _ in range(3)])
         self.rod_color = tuple([random.randint(100, 180) for _ in range(3)])
 
 
