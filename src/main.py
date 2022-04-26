@@ -99,9 +99,8 @@ class Simulation:
                 best_agent = self.agents[agents_are_done.index(False)]
                 best_this_gen = best_agent.scorer.get_score()
                 self.agents = [best_agent.mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                self.switch_active_agent(0)
                 
-
-
                 print(f"Best score from generation {self.epochs_elapsed}: {best_this_gen}")
 
                 self.mutation_amount *= self.mutation_decay
@@ -129,7 +128,6 @@ def main():
 
     sim = Simulation(args.agents, not args.nographics)
     sim.run()
-
 
 if __name__ == "__main__":
     main()
