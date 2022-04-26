@@ -29,7 +29,7 @@ class Simulation:
         # create list of agents
         self.agents = [agent.Agent() for _ in range(num_agents)]
 
-        self.mutation_amount = 1 # standard deviation in gaussian noise
+        self.mutation_amount = 0.1 # standard deviation in gaussian noise
         self.mutation_decay = 0.98
 
         self.epochs = 50
@@ -74,12 +74,14 @@ class Simulation:
                 graphics.Graphics.update()
 
             # if all the agents are done, prepare next generation
-            if all([a.scorer.is_done() for a in self.agents]):
-                scored_agents = [(a.get_score(), a) for a in self.agents]
-                scored_agents.sort()
-                self.agents = [scored_agents[-1][1].mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+            agents_are_done = [a.scorer.is_done() for a in self.agents]
+            if agents_are_done.count(False) == 1:
+                # find best agent by index of False in scores
+                best_agent = self.agents[agents_are_done.index(False)]
+                best_this_gen = best_agent.scorer.get_score()
+                self.agents = [best_agent.mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
                 
-                best_this_gen = scored_agents[-1][0]
+
 
                 print(f"Best score from generation {self.epochs_elapsed}: {best_this_gen}")
 
@@ -87,7 +89,7 @@ class Simulation:
 
                 if best_this_gen > self.best_score:
                     self.best_score = best_this_gen
-                    self.best_agent = scored_agents[-1][1].copy()
+                    self.best_agent = best_agent.copy()
                     print("New best agent network: ")
                     print(self.best_agent.net)
 
