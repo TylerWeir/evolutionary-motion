@@ -15,7 +15,10 @@ https://vtechworks.lib.vt.edu/bitstream/handle/10919/51904/LD5655.V855_1988.L362
 """
 
 import numpy as np
+import pygame
 from activations import *
+from constants import *
+import math
 
 class NeuralNet:
     """Represents a basic neural network."""
@@ -133,29 +136,65 @@ class NeuralNet:
     def __str__(self):
         return str(self.weights) + str(self.nodes) + str(self.activations)
 
+    def __find_widest_layer(self):
+        """Finds the index of the layer with the most neurons.
+        
+        Returns: The index of the layer with the most neurons.
+        """
+        longest_layer = 0
+        for i, _ in enumerate(self.nodes):
+            if len(self.nodes[i]) > len(self.nodes[longest_layer]):
+                longest_layer = i
+
+        return longest_layer
+
+
+    def __get_weight_color(self, activation_value):
+        x = math.tanh(0.5*activation_value)
+
+        if x < 0:
+            r_diff = NEGATIVE_COLOR[0] - MIDDLE_COLOR[0] 
+            g_diff = NEGATIVE_COLOR[1] - MIDDLE_COLOR[1] 
+            b_diff = NEGATIVE_COLOR[2] - MIDDLE_COLOR[2] 
+
+            r = NEGATIVE_COLOR[0] + r_diff * x
+            g = NEGATIVE_COLOR[1] + g_diff * x
+            b = NEGATIVE_COLOR[2] + b_diff * x
+
+            return tuple((r, g, b))
+
+        r_diff = POSITIVE_COLOR[0] - MIDDLE_COLOR[0]
+        g_diff = POSITIVE_COLOR[1] - MIDDLE_COLOR[1]
+        b_diff = POSITIVE_COLOR[2] - MIDDLE_COLOR[2]
+
+        r = MIDDLE_COLOR[0] + r_diff * x
+        g = MIDDLE_COLOR[1] + g_diff * x
+        b = MIDDLE_COLOR[2] + b_diff * x
+
+        return tuple((r, g, b))
+
+
+    def __get_node_color(self, activation_value):
+        x = abs(math.tanh(0.5*activation_value))
+        return tuple((255*x, 255*x, 255*x))
 
     def draw(self, canvas):
         """Draws a graph like representation of the current state of
         the neural network to the given tkinter canvas.  The gradient 
         represents the weights of the edges."""
-        #TODO this is for tkinter
-
-        #HARDCODED VALUES RN TODO
-        nodesize = 40 
-        node_vert_space = 10
-        layerspace = 60 
 
         # Calculate the offset needed to align the middle of each 
         # node layer
         # First get the longest layer index
-        longest_layer = 0
-        for i, _ in enumerate(self.nodes):
-            if len(self.nodes[i]) > len(self.nodes[longest_layer]):
-                longest_layer = i
-        
-        longest_length = len(self.nodes[longest_layer])
-        longest_height = longest_length*(nodesize+node_vert_space)
-        longest_height -= node_vert_space
+        wide_index = self.__find_widest_layer()
+        longest_length = len(self.nodes[wide_index])
+        longest_height = longest_length * (NODE_RADIUS*2 + NODE_VERT_SPACE)
+        longest_height -= NODE_VERT_SPACE
+
+        # Offest for dawing the network
+        net_width = len(self.nodes) * (NODE_RADIUS*2+LAYER_SPACE) - LAYER_SPACE
+        x_offset = canvas.get_width()/2 - net_width/2
+        y_offset = canvas.get_height()/4 - longest_height/2
 
         # Store the node positions for reference when drawing the
         # edges.
@@ -164,8 +203,8 @@ class NeuralNet:
         # First draw the nodes
         for i, _ in enumerate(self.nodes):
             length = len(self.nodes[i])
-            height = length*(nodesize+node_vert_space)
-            height -= node_vert_space
+            height = length * (NODE_RADIUS*2 + NODE_VERT_SPACE)
+            height -= NODE_VERT_SPACE 
 
             diff = longest_height - height
             vert_offset = diff/2
@@ -173,23 +212,30 @@ class NeuralNet:
             node_positions.append(self.nodes[i].tolist())
 
             for j, _ in enumerate(self.nodes[i]):
-                x0 = i*(nodesize + layerspace)
-                y0 = j*(nodesize + node_vert_space) + vert_offset
-                x1 = x0 + nodesize
-                y1 = y0 + nodesize
-                fill = self.__calc_node_color(self.nodes[i][j])
-                canvas.create_oval(x0, y0, x1, y1, fill=fill)
-                node_positions[i][j] = (x0+nodesize/2, y0+nodesize/2)
+                x0 = i*(NODE_RADIUS*2 + LAYER_SPACE) + NODE_RADIUS
+                y0 = j*(NODE_RADIUS*2 + NODE_VERT_SPACE) + vert_offset + NODE_RADIUS
+
+                x0 += x_offset
+                y0 += y_offset
+                
+                fill = self.__get_node_color(self.nodes[i][j])
+                pygame.draw.circle(canvas, fill, (x0, y0), NODE_RADIUS)
+                pygame.draw.circle(canvas, (0, 0, 0), (x0, y0), NODE_RADIUS, 1)
+                
+                node_positions[i][j] = (x0, y0)
 
         # Then draw the connections
         for i, _ in enumerate(self.weights): #weight layer
             for j, _ in enumerate(node_positions[i]): #node input
-                x0 = node_positions[i][j][0] + nodesize/2
+                x0 = node_positions[i][j][0] + NODE_RADIUS
                 y0 = node_positions[i][j][1]
 
                 for k, _ in enumerate(node_positions[i+1]):
-                    x1 = node_positions[i+1][k][0] - nodesize/2
+                    x1 = node_positions[i+1][k][0] - NODE_RADIUS
                     y1 = node_positions[i+1][k][1]
-                    canvas.create_line(x0, y0, x1, y1)
+
+                    fill = self.__get_weight_color(self.weights[i][k][j])
+
+                    pygame.draw.line(canvas, fill, (x0, y0), (x1, y1), width=2)
  
 

@@ -281,6 +281,7 @@ class Agent():
 
         if self.is_highlighted:
            self.__highlight(canvas)
+           self.net.draw(canvas)
 
         # Draw relative to window size
         width = canvas.get_width()
