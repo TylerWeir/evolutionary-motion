@@ -38,6 +38,25 @@ class Simulation:
         self.best_agent = None
         self.best_score = -10000000
 
+        # Set the active agent
+        self.active_agent = 0
+        self.switch_active_agent(0)
+
+    def switch_active_agent(self, direction):
+        """Switches the active agent."""
+        # Turn off hightlighting on the old agent
+        self.agents[self.active_agent].is_highlighted = False
+        
+        # Change the active agent index
+        self.active_agent += direction
+        if self.active_agent < 0:
+            self.active_agent = len(self.agents)-1
+        if self.active_agent >= len(self.agents):
+            self.active_agent = 0
+
+        # Turn on highlighting for the new active agent
+        self.agents[self.active_agent].is_highlighted = True
+
         
     def run(self):
         """Runs the program."""
@@ -56,9 +75,9 @@ class Simulation:
                             pygame.quit()
                             return
                         if event.key == K_LEFT:
-                            self.agent.move(-1)
+                            self.switch_active_agent(-1)
                         if event.key == K_RIGHT:
-                            self.agent.move(1)
+                            self.switch_active_agent(1)
                         
                         if event.key == K_p:
                             print(self.agent.nn_weights_string())
@@ -78,6 +97,7 @@ class Simulation:
                 scored_agents = [(a.get_score(), a) for a in self.agents]
                 scored_agents.sort()
                 self.agents = [scored_agents[-1][1].mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                self.switch_active_agent(0)
                 
                 best_this_gen = scored_agents[-1][0]
 

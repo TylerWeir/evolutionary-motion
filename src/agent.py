@@ -52,6 +52,9 @@ class Agent():
         sticks = [(0,1)]
         self.skeleton = Skeleton(points, sticks)
 
+        # Used to show which agent is selected
+        self.is_highlighted = False
+
         # Define a score keeper for the agent
         self.scorer = Scorer()
 
@@ -150,6 +153,80 @@ class Agent():
 
         return a
 
+    def __highlight(self, canvas):
+        width = canvas.get_width()
+        height = canvas.get_height()
+
+        glowing_base_pos = (
+            self.pos.x + width/2 - 20 - 4,
+            self.pos.y + height*2/3 - 10 - 4,
+            AGENT_BASE_WIDTH+8,
+            AGENT_BASE_HEIGHT+4,
+        )
+
+        myRect = pygame.Rect((glowing_base_pos))
+        self.draw_glowing_rect(canvas, (255,0,0), myRect)
+
+        self.__draw_glowing_pole(canvas)
+
+
+    def __draw_glowing_pole(self, canvas):
+
+        # get the end points of the skeleton
+        pt1 = self.skeleton.points[0]
+        pt2 = self.skeleton.points[1]
+        delta = pt2 - pt1
+
+        length = pt1.distance_to(pt2) + HIGHLIGHT_THICKNESS
+        radius = AGENT_POLE_RADIUS + HIGHLIGHT_THICKNESS
+
+        width = canvas.get_width()
+        height = canvas.get_height()
+        base_pos = (self.pos.x + width/2, self.pos.y + height*2/3, 40, 20)
+        
+        # Find the angle of rotation
+        rads = atan2(delta.y, delta.x)
+       
+        # This is how new points are calculated 
+        # new_x_point = old_x_point * cos(Angle) - old_y_point * sin(Angle);
+        # new_y_point = old_y_point * cos(Angle) + old_x_point * sin(Angle);
+        sin_rads = sin(rads)
+        cos_rads = cos(rads)
+
+        x1 = radius * sin_rads
+        x2 = -radius * sin_rads
+        x3 = length * cos_rads - radius * sin_rads
+        x4 = length * cos_rads + radius * sin_rads
+        
+        y1 = -radius * cos_rads
+        y2 = radius * cos_rads
+        y3 = radius * cos_rads + length * sin_rads
+        y4 = -radius * cos_rads + length * sin_rads
+
+        points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
+
+        # map the offset through the points
+        points = [(x + base_pos[0], y + base_pos[1]) for (x, y) in points]
+        self.draw_glowing_polygon(canvas, (255, 0, 0), points)
+
+
+    def draw_glowing_rect(self, surface, color, rect):
+        # Draw the glowing pole and glowing base first
+        base_surf = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+        base_surf.set_alpha(HIGHLIGHT_ALPHA)
+        pygame.draw.rect(base_surf, (255, 0, 0), base_surf.get_rect())
+        surface.blit(base_surf, rect)
+
+
+    def draw_glowing_polygon(self, surface, color, points):
+        lx, ly = zip(*points)
+        min_x, min_y, max_x, max_y = min(lx), min(ly), max(lx), max(ly)
+        target_rect = pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)
+        shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
+        shape_surf.set_alpha(HIGHLIGHT_ALPHA)
+        pygame.draw.polygon(shape_surf, color, [(x-min_x, y-min_y) for x, y in points])
+        surface.blit(shape_surf, target_rect)
+
 
     def __draw_pole(self, canvas):
 
@@ -158,14 +235,13 @@ class Agent():
         pt2 = self.skeleton.points[1]
         delta = pt2 - pt1
 
-        radius = 3 
+        radius = AGENT_POLE_RADIUS
         length = pt1.distance_to(pt2)
 
-        # TODO this needs refactoring
         width = canvas.get_width()
         height = canvas.get_height()
         base_pos = (self.pos.x + width/2, self.pos.y + height*2/3, 40, 20)
-        
+
         # Find the angle of rotation
         rads = atan2(delta.y, delta.x)
        
@@ -203,6 +279,10 @@ class Agent():
         Returns: None
         """
 
+        if self.is_highlighted:
+           self.__highlight(canvas)
+           self.net.draw(canvas)
+
         # Draw relative to window size
         width = canvas.get_width()
         height = canvas.get_height()
@@ -219,7 +299,6 @@ class Agent():
 
         # For now also draw the skeleton
         #self.skeleton.draw(canvas)
-
 
     def __lt__(self, other):
         return True
