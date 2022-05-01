@@ -236,6 +236,6 @@ class NeuralNet:
 
                     fill = self.__get_weight_color(self.weights[i][k][j])
 
-                    pygame.draw.line(canvas, fill, (x0, y0), (x1, y1), width=2)
- 
+                    width = round(10 * abs(self.weights[i][k][j])) + 1
 
+                    pygame.draw.line(canvas, fill, (x0, y0), (x1, y1), width=width)
