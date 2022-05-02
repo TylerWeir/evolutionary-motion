@@ -48,8 +48,8 @@ class Agent():
         self.move_strength = 1 # how strong the force is when the player tries to move
 
         # Define the skeleton backing the agent
-        points = [(0, 0), (1, -160)]
-        sticks = [(0,1)]
+        points = [(0, 0), (1, -160), (1, -200)]
+        sticks = [(0,1), (1, 2)]
         self.skeleton = Skeleton(points, sticks)
 
         # Used to show which agent is selected
@@ -231,44 +231,46 @@ class Agent():
 
     def __draw_pole(self, canvas):
 
-        # get the end points of the skeleton
-        pt1 = self.skeleton.points[0]
-        pt2 = self.skeleton.points[1]
-        delta = pt2 - pt1
+        for stick in self.skeleton.sticks:
 
-        radius = AGENT_POLE_RADIUS
-        length = pt1.distance_to(pt2)
+            # get the end points of the skeleton
+            pt1 = self.skeleton.points[stick[0]]
+            pt2 = self.skeleton.points[stick[1]]
+            delta = pt2 - pt1
 
-        width = canvas.get_width()
-        height = canvas.get_height()
-        base_pos = (self.pos.x + width/2, self.pos.y + height*2/3, 40, 20)
+            radius = AGENT_POLE_RADIUS
+            length = pt1.distance_to(pt2)
 
-        # Find the angle of rotation
-        rads = atan2(delta.y, delta.x)
-       
-        # This is how new points are calculated 
-        # new_x_point = old_x_point * cos(Angle) - old_y_point * sin(Angle);
-        # new_y_point = old_y_point * cos(Angle) + old_x_point * sin(Angle);
-        sin_rads = sin(rads)
-        cos_rads = cos(rads)
+            width = canvas.get_width()
+            height = canvas.get_height()
+            base_pos = (pt1.x + width/2, pt1.y + height*2/3, 40, 20)
 
-        x1 = radius * sin_rads
-        x2 = -radius * sin_rads
-        x3 = length * cos_rads - radius * sin_rads
-        x4 = length * cos_rads + radius * sin_rads
-        
-        y1 = -radius * cos_rads
-        y2 = radius * cos_rads
-        y3 = radius * cos_rads + length * sin_rads
-        y4 = -radius * cos_rads + length * sin_rads
+            # Find the angle of rotation
+            rads = atan2(delta.y, delta.x)
+           
+            # This is how new points are calculated 
+            # new_x_point = old_x_point * cos(Angle) - old_y_point * sin(Angle);
+            # new_y_point = old_y_point * cos(Angle) + old_x_point * sin(Angle);
+            sin_rads = sin(rads)
+            cos_rads = cos(rads)
 
-        points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
+            x1 = radius * sin_rads
+            x2 = -radius * sin_rads
+            x3 = length * cos_rads - radius * sin_rads
+            x4 = length * cos_rads + radius * sin_rads
+            
+            y1 = -radius * cos_rads
+            y2 = radius * cos_rads
+            y3 = radius * cos_rads + length * sin_rads
+            y4 = -radius * cos_rads + length * sin_rads
 
-        # map the offset through the points
-        points = [(x + base_pos[0], y + base_pos[1]) for (x, y) in points]
-        
-        # pygame.draw.polygon(canvas, (226, 41, 55), points)
-        pygame.draw.polygon(canvas, self.rod_color, points)
+            points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
+
+            # map the offset through the points
+            points = [(x + base_pos[0], y + base_pos[1]) for (x, y) in points]
+            
+            # pygame.draw.polygon(canvas, (226, 41, 55), points)
+            pygame.draw.polygon(canvas, self.rod_color, points)
 
 
     def draw(self, canvas):
@@ -299,7 +301,7 @@ class Agent():
         self.__draw_pole(canvas)
 
         # For now also draw the skeleton
-        #self.skeleton.draw(canvas)
+        # self.skeleton.draw(canvas)
 
     def __lt__(self, other):
         return True
