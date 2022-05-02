@@ -25,12 +25,12 @@ class Environment:
 
         Returns: None
         """
-        surface.fill((255, 255, 255))
+        surface.fill((232, 232, 232))
 
         # draw track
         pygame.draw.rect(
             surface,
-            (0, 0, 0),
+            (39, 39, 47),
             (
                 surface.get_width() / 2 - TRACK_WIDTH / 2 - AGENT_BASE_WIDTH / 2,
                 surface.get_height() * 2 / 3 + AGENT_BASE_HEIGHT / 2,

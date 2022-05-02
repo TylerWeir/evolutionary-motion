@@ -59,7 +59,8 @@ class Agent():
         self.scorer = Scorer()
 
         # Define a NeuralNet for the agent
-        self.net = NeuralNet(1, 1, tanh)
+        self.net = NeuralNet(3, 1, tanh)
+        self.net.add_hidden_layer(5, tanh)
         self.net.add_hidden_layer(3, tanh)
 
         self.base_color = tuple([random.randint(40, 120) for _ in range(3)])
@@ -110,7 +111,7 @@ class Agent():
         if not self.scorer.is_done():
             # get the direction of effort
             rod_tip_pos_relative_to_base = self.skeleton.points[1][0] - self.skeleton.points[0][0]
-            effort_vector = self.net.evaluate(np.array([rod_tip_pos_relative_to_base,]))
+            effort_vector = self.net.evaluate(np.array([rod_tip_pos_relative_to_base,self.vel.x, self.pos.x]))
             move_force = tanh(effort_vector[0])
             # print(f"{rod_tip_pos_relative_to_base=} {effort_vector=} {move_force=}")
             self.apply_force(move_force, delta_t)
