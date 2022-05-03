@@ -1,6 +1,9 @@
 # Environment constants
 TRACK_WIDTH = 400
 
+# Environment appearance
+SCREEN_BACKGROUND_COLOR = (232, 232, 232)
+
 # Agent Appearence
 AGENT_BASE_WIDTH = 40
 AGENT_BASE_HEIGHT = 20

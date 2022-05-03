@@ -7,6 +7,8 @@ of the simulation.
 
 import pygame
 
+from constants import SCREEN_BACKGROUND_COLOR
+
 class Graphics():
     """Manages the graphics of the simulation."""
 
@@ -21,7 +23,7 @@ class Graphics():
         if cls.__window is None:
             # Initialize pygame
             cls.__window = pygame.display.set_mode(*args)
-            cls.__window.fill((232, 232, 232))
+            cls.__window.fill(SCREEN_BACKGROUND_COLOR)
         return cls.__window
 
 
