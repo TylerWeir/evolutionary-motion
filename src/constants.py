@@ -14,7 +14,7 @@ HIGHLIGHT_ALPHA = 150
 
 # Agent Behavior
 BASE_FORCE_NOISE = 0.2
-ROD_ACC_NOISE = 10
+ROD_ACC_NOISE = 40
 
 # Neural Net Appearence
 NODE_RADIUS = 10 

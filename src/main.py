@@ -8,19 +8,24 @@ import argparse
 
 import pygame
 from pygame.locals import *
+from constants import SCREEN_BACKGROUND_COLOR
 
 import environment
 import graphics
 import agent
 
 
+pygame.init()
+
 class Simulation:
     """Creates a simulated environment containing ANN controlled agents."""
 
-    def __init__(self, num_agents, do_graphics=True):
+    def __init__(self, num_agents, do_graphics=True, num_reproducing=1):
         """Default constuctor."""
         self.do_graphics = do_graphics
         self.num_agents = num_agents
+        self.num_reproducing = num_reproducing
+
         if do_graphics:
             # Initialize the graphics
             self.screen = graphics.Graphics()
@@ -42,6 +47,15 @@ class Simulation:
         self.active_agent = 0
         self.switch_active_agent(0)
 
+        self.font = pygame.font.SysFont("Arial, Times New Roman", 32)
+        self.text = self.font.render('Skip endings:', True, (255, 0, 0), SCREEN_BACKGROUND_COLOR)
+
+        self.text_rect = self.text.get_rect()
+        self.text_rect.center = (self.screen.get_width() // 2 - 500, self.screen.get_height() // 2)
+
+        self.stop_early = True
+
+
     def switch_active_agent(self, direction):
         """Switches the active agent."""
         # Turn off hightlighting on the old agent
@@ -56,6 +70,15 @@ class Simulation:
 
         # Turn on highlighting for the new active agent
         self.agents[self.active_agent].is_highlighted = True
+
+
+    def increment_epoch(self):
+        """ returns True if the final epoch has elapsed """
+        self.mutation_amount *= self.mutation_decay
+
+        self.epochs_elapsed += 1
+        if self.epochs_elapsed >= self.epochs:
+            return True
 
         
     def run(self):
@@ -78,9 +101,14 @@ class Simulation:
                             self.switch_active_agent(-1)
                         if event.key == K_RIGHT:
                             self.switch_active_agent(1)
+                        if event.key == K_SPACE:
+                            self.stop_early = not self.stop_early
                         
                         if event.key == K_p:
-                            print(self.agent.nn_weights_string())
+                            print(self.agents[self.active_agent].nn_weights_string())
+
+                        if event.key == K_s:
+                            print(self.agents[self.active_agent].scorer.get_score())
 
             # update agents
             [a.update(1/60) for a in self.agents]
@@ -90,35 +118,45 @@ class Simulation:
                 self.environment.draw(self.screen)
                 # draw agents
                 [a.draw(self.screen) for a in self.agents]
+                self.screen.blit(self.text, self.text_rect)
+
+                pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top, 30, 30))
+                
                 graphics.Graphics.update()
 
             # if all the agents are done, prepare next generation
             agents_are_done = [a.scorer.is_done() for a in self.agents]
-            if agents_are_done.count(False) == 1:
+            if all(agents_are_done) or (self.stop_early and agents_are_done.count(False) <= self.num_reproducing):
                 # find best agent by index of False in scores
-                best_agent = self.agents[agents_are_done.index(False)]
-                best_this_gen = best_agent.scorer.get_score()
-                self.agents = [best_agent.mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                if self.stop_early:
+                    best_agents = [a for a in self.agents if not a.scorer.is_done()]
+                    self.agents = [best_agents[i % len(best_agents)].mutated_copy(self.mutation_amount) for i in range(self.num_agents)]
+                else:
+                    best_score = -10000000
+                    best_agent = None
+                    for a in self.agents:
+                        if a.scorer.get_score() > best_score:
+                            best_score = a.scorer.get_score()
+                            best_agent = a
+                    
+                    self.agents = [best_agent.mutated_copy(self.mutation_amount) for _ in range(self.num_agents)]
+                    
+                    print(f"Best score from generation {self.epochs_elapsed}: {best_agent.scorer.get_score()}")
+                    
+                    if best_agent.scorer.get_score() > self.best_score:
+                        self.best_score = best_agent.scorer.get_score()
+                        self.best_agent = best_agent.copy()
+                        print("New best agent network: ")
+                        print(self.best_agent.net)
+
                 self.switch_active_agent(0)
-                
-                print(f"Best score from generation {self.epochs_elapsed}: {best_this_gen}")
-
-                self.mutation_amount *= self.mutation_decay
-
-                if best_this_gen > self.best_score:
-                    self.best_score = best_this_gen
-                    self.best_agent = best_agent.copy()
-                    print("New best agent network: ")
-                    print(self.best_agent.net)
-
-                self.epochs_elapsed += 1
-                if self.epochs_elapsed >= self.epochs:
-                    break
+                if self.increment_epoch(): break
             
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-a", "--agents", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of agents to simulate")
+    parser.add_argument("-a", "--agents", metavar="NUMBER_OF_AGENTS", type=int, default=5, help="number of agents to simulate")
+    parser.add_argument("-r", "--reproducers", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of agents that reproduce after each round (must not be greater than the total number of agents)")
     parser.add_argument("-n", "--nographics", action="store_true", help="disable graphics")
     args = parser.parse_args()
     
@@ -126,8 +164,13 @@ def main():
         if input("Are you sure you want to run the simulation with over 1000 agents? (Y/n) ").lower() != "y":
             exit(0)
 
-    sim = Simulation(args.agents, not args.nographics)
+    if args.reproducers > args.agents:
+        print("There cannot be more reproducers than total agents.")
+        exit(0)
+
+    sim = Simulation(args.agents, not args.nographics, num_reproducing=args.reproducers)
     sim.run()
+
 
 if __name__ == "__main__":
     main()
