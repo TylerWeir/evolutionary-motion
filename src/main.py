@@ -20,7 +20,7 @@ pygame.init()
 class Simulation:
     """Creates a simulated environment containing ANN controlled agents."""
 
-    def __init__(self, num_agents, do_graphics=True, num_reproducing=1):
+    def __init__(self, num_agents, do_graphics=True, num_reproducing=1, chain_length=0):
         """Default constuctor."""
         self.do_graphics = do_graphics
         self.num_agents = num_agents
@@ -32,7 +32,7 @@ class Simulation:
             self.environment = environment.Environment()
 
         # create list of agents
-        self.agents = [agent.Agent() for _ in range(num_agents)]
+        self.agents = [agent.Agent(chain_length=chain_length) for _ in range(num_agents)]
 
         self.mutation_amount = 0.1 # standard deviation in gaussian noise
         self.mutation_decay = 0.98
@@ -47,13 +47,14 @@ class Simulation:
         self.active_agent = 0
         self.switch_active_agent(0)
 
-        self.font = pygame.font.SysFont("Arial, Times New Roman", 32)
-        self.text = self.font.render('Skip endings:', True, (255, 0, 0), SCREEN_BACKGROUND_COLOR)
+        if do_graphics:
+            self.font = pygame.font.SysFont("Arial, Times New Roman", 32)
+            self.text = self.font.render('Skip endings:', True, (255, 0, 0), SCREEN_BACKGROUND_COLOR)
 
-        self.text_rect = self.text.get_rect()
-        self.text_rect.center = (self.screen.get_width() // 2 - 500, self.screen.get_height() // 2)
+            self.text_rect = self.text.get_rect()
+            self.text_rect.center = (self.screen.get_width() // 2 - 500, self.screen.get_height() // 2)
 
-        self.stop_early = True
+        self.stop_early = True and do_graphics
 
 
     def switch_active_agent(self, direction):
@@ -117,7 +118,11 @@ class Simulation:
                 # Draw the environment again
                 self.environment.draw(self.screen)
                 # draw agents
-                [a.draw(self.screen) for a in self.agents]
+                [a.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
+                if self.agents[self.active_agent].scorer.is_done():
+                    for i, a in enumerate(self.agents):
+                        if not a.scorer.is_done():
+                            self.switch_active_agent(i)
                 self.screen.blit(self.text, self.text_rect)
 
                 pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top, 30, 30))
@@ -157,6 +162,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--agents", metavar="NUMBER_OF_AGENTS", type=int, default=5, help="number of agents to simulate")
     parser.add_argument("-r", "--reproducers", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of agents that reproduce after each round (must not be greater than the total number of agents)")
+    parser.add_argument("-c", "--chainlength", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of additional segments to add onto the end of the rods")
     parser.add_argument("-n", "--nographics", action="store_true", help="disable graphics")
     args = parser.parse_args()
     
@@ -168,7 +174,9 @@ def main():
         print("There cannot be more reproducers than total agents.")
         exit(0)
 
-    sim = Simulation(args.agents, not args.nographics, num_reproducing=args.reproducers)
+    chain_length = args.chainlength if args.chainlength is not None else 0
+
+    sim = Simulation(args.agents, not args.nographics, num_reproducing=args.reproducers, chain_length=chain_length)
     sim.run()
 
 

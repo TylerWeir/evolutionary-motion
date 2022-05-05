@@ -1,17 +1,11 @@
 """
-agnet.py
+agent.py
 
 Reprsents an agent operating in the simulated environment. Each agent contains a 
 unique instance of an evolutionary neural network to control its movements.
 
 Large amounts of state will be kept in the objects such as positions, orientations, 
 velocities.
-
-**NOTE: See the flywheight design pattern. It may be of use, though it is 
-typically used when there are about 1e5 objects or more
-
-see here for a csgo example: https://www.geeksforgeeks.org/flyweight-design-pattern/?msclkid=055e8a0cc06411ec91c2bef75e157f9d
-another helpful source: https://sourcemaking.com/design_patterns/flyweight/python/1#:~:text=Code%20examples%20%20%20Java%20%20%20Flyweight,%20Flyweight%20in%20Python%20%20%20%20?msclkid=b056bba6c06411ec844b7bb5a3f5ef16
 
 """
 import abc
@@ -33,23 +27,29 @@ class Agent():
     """Agent defines a pole balancing entity. Each agent is made
     up a scoring object, a neural net, and a skeleton."""
 
-    def __init__(self):
-        """Defualt constructor. Defines an agent with a random 
+    def __init__(self, chain_length=0):
+        """Default constructor. Defines an agent with a random 
         neural net.
 
         Returns: None
         """
+
+        # set argument properties
+        if type(chain_length) != int:
+            raise Exception("property chain_length must be an int")
+
+        self.chain_length = chain_length
+
         # An abstract position which is later
         # mapped to the center of the screen as zero.
         self.pos = Vector2((0,0))
-
         self.vel = Vector2((0,0))
 
-        self.move_strength = 1 # how strong the force is when the player tries to move
+        self.move_strength = 1.5 # how strong the force is when the player tries to move
 
         # Define the skeleton backing the agent
-        points = [(0, 0), (1, -160), (1, -200)]
-        sticks = [(0,1), (1, 2)]
+        points = [(0, 0), (1, -260)] + [(1, -300 - i*40) for i in range(chain_length)]
+        sticks = [(i, i+1) for i, _ in enumerate(points[:-1])]
         self.skeleton = Skeleton(points, sticks)
 
         # Used to show which agent is selected
@@ -59,8 +59,10 @@ class Agent():
         self.scorer = Scorer()
 
         # Define a NeuralNet for the agent
-        self.net = NeuralNet(4, 1, tanh)
-        self.net.add_hidden_layer(8, tanh)
+        # input layer is base position, base velocity, x position relative to base for all other ponts
+        self.net = NeuralNet(len(points) + 1, 1, tanh)
+        self.net.add_hidden_layer(6, tanh)
+        self.net.add_hidden_layer(6, tanh)
         self.net.add_hidden_layer(3, tanh)
 
         self.base_color = tuple([random.randint(40, 120) for _ in range(3)])
@@ -110,9 +112,8 @@ class Agent():
         # only update if the pole is airborne
         if not self.scorer.is_done():
             # get the direction of effort
-            rod_tip_pos_relative_to_base = self.skeleton.points[1][0] - self.skeleton.points[0][0]
-            second_tip_dist_from_base = self.skeleton.points[2][0] - self.skeleton.points[0][0]
-            effort_vector = self.net.evaluate(np.array([rod_tip_pos_relative_to_base, second_tip_dist_from_base, self.vel.x, self.pos.x]))
+            point_positions = [self.skeleton.points[i+1][0] - self.skeleton.points[i][0] for i in range(self.chain_length + 1)]
+            effort_vector = self.net.evaluate(np.array([self.vel.x, self.pos.x] + point_positions))
             move_force = tanh(effort_vector[0])
             # print(f"{rod_tip_pos_relative_to_base=} {effort_vector=} {move_force=}")
             self.apply_force(move_force, delta_t)
@@ -129,7 +130,7 @@ class Agent():
 
     
     def new_copy(self, preserve_color=False):
-        a = Agent()
+        a = Agent(self.chain_length)
         a.net = self.net.copy()
         if preserve_color:
             a.base_color = self.base_color
@@ -139,7 +140,7 @@ class Agent():
     
 
     def mutated_copy(self, mutation_amount=1, preserve_color=False):
-        a = Agent()
+        a = Agent(self.chain_length)
         a.net = self.net.noisy_copy(std_dev=mutation_amount)
         if preserve_color:
             a.base_color = self.base_color

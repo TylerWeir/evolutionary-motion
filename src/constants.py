@@ -1,5 +1,5 @@
 # Environment constants
-TRACK_WIDTH = 400
+TRACK_WIDTH = 800
 
 # Environment appearance
 SCREEN_BACKGROUND_COLOR = (232, 232, 232)
@@ -14,12 +14,13 @@ HIGHLIGHT_ALPHA = 150
 
 # Agent Behavior
 BASE_FORCE_NOISE = 0.2
-ROD_ACC_NOISE = 40
+ROD_ACC_NOISE = 10
 
 # Neural Net Appearence
-NODE_RADIUS = 10 
+NODE_RADIUS = 12
 NODE_VERT_SPACE = 10
-LAYER_SPACE = 60
+LAYER_SPACE = 200
+
 # Weight Colors
 NEGATIVE_COLOR = (255, 0, 0)
 MIDDLE_COLOR = (0, 0, 0)

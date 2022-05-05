@@ -14,6 +14,7 @@ https://vtechworks.lib.vt.edu/bitstream/handle/10919/51904/LD5655.V855_1988.L362
 
 """
 
+import pickle
 import numpy as np
 import pygame
 from activations import *
@@ -136,17 +137,18 @@ class NeuralNet:
     def __str__(self):
         return str(self.weights) + str(self.nodes) + str(self.activations)
 
+
     def __find_widest_layer(self):
         """Finds the index of the layer with the most neurons.
         
         Returns: The index of the layer with the most neurons.
         """
-        longest_layer = 0
+        longest_layer_idx = 0
         for i, _ in enumerate(self.nodes):
-            if len(self.nodes[i]) > len(self.nodes[longest_layer]):
-                longest_layer = i
+            if len(self.nodes[i]) > len(self.nodes[longest_layer_idx]):
+                longest_layer_idx = i
 
-        return longest_layer
+        return longest_layer_idx
 
 
     def __get_weight_color(self, activation_value):
@@ -172,6 +174,15 @@ class NeuralNet:
         b = MIDDLE_COLOR[2] + b_diff * x
 
         return tuple((r, g, b))
+
+
+    def save(self, filepath):
+        pickle.dump(self.weights, filepath)
+
+
+    def load(self, filepath):
+        self.weights = pickle.load(filepath)
+        
 
 
     def __get_node_color(self, activation_value):
