@@ -20,6 +20,8 @@ import pygame
 from activations import *
 from constants import *
 import math
+import os
+import sys
 
 class NeuralNet:
     """Represents a basic neural network."""
@@ -41,6 +43,28 @@ class NeuralNet:
         # each layer of nodes.  
         # Does the input layer use activations? TODO
         self.activations = [None, activation]
+
+    @classmethod
+    def net_from_file(cls, filepath):
+        """Loads a network from a file path and returns it wrapped in a neural net instance."""
+
+        # Check that the file exists
+        if not os.path.exists(filepath):
+            print("[Neural Net]: The file does not exist")
+            sys.exit()
+
+        # Load the network with the pickler
+        with open(filepath, "rb") as f:
+            saved_net = pickle.load(f)
+        return saved_net
+
+
+    def save(self, filepath):
+        """Save this instance via the pickler."""
+        
+        # Write the file in binary mode
+        with open(filepath, "wb") as f:
+            pickle.dump(self, f)
 
     
     def copy(self):
@@ -110,13 +134,6 @@ class NeuralNet:
         return self.nodes[-1][:]
 
 
-    def train(self, num_epochs, learning_rate):
-        """Trains the net for `num_epochs` at `learning_rate`"""
-        #TODO
-        # this is not needed for our project
-        return None
-
-
     def __calc_node_color(self, value):
         """Helper function to calculate the hexvalue of a node color
         from it's activation value. Applied sigmoid to the activation
@@ -174,15 +191,6 @@ class NeuralNet:
         b = MIDDLE_COLOR[2] + b_diff * x
 
         return tuple((r, g, b))
-
-
-    def save(self, filepath):
-        pickle.dump(self.weights, filepath)
-
-
-    def load(self, filepath):
-        self.weights = pickle.load(filepath)
-        
 
 
     def __get_node_color(self, activation_value):

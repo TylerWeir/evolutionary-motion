@@ -51,7 +51,6 @@ class Agent():
         points = [(0, 0), (1, -260)] + [(1, -300 - i*40) for i in range(chain_length)]
         sticks = [(i, i+1) for i, _ in enumerate(points[:-1])]
         self.skeleton = Skeleton(points, sticks)
-
         # Used to show which agent is selected
         self.is_highlighted = False
 
@@ -68,6 +67,21 @@ class Agent():
         self.base_color = tuple([random.randint(40, 120) for _ in range(3)])
         self.rod_color = tuple([random.randint(100, 180) for _ in range(3)])
 
+    
+    def reset(self):
+        """Resets the agents position and the scoring function."""
+
+        # An abstract position which is later
+        # mapped to the center of the screen as zero.
+        self.pos = Vector2((0,0))
+        self.vel = Vector2((0,0))
+
+        # Define the skeleton backing the agent
+        points = [(0, 0), (1, -260)] + [(1, -300 - i*40) for i in range(self.chain_length)]
+        sticks = [(i, i+1) for i, _ in enumerate(points[:-1])]
+        self.skeleton = Skeleton(points, sticks)
+
+        self.scorer = Scorer()
 
     def move(self, x):
         """Moves the agent by the indicated amount on the x axis
@@ -273,6 +287,10 @@ class Agent():
             
             # pygame.draw.polygon(canvas, (226, 41, 55), points)
             pygame.draw.polygon(canvas, self.rod_color, points)
+
+    def save_network(self, filepath):
+        """Saves the agent's network to the filepath."""
+        self.net.save(filepath)
 
 
     def draw(self, canvas):
