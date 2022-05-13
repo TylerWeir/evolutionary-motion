@@ -202,7 +202,7 @@ class Simulation:
                 print(f"Gen {self.epochs_elapsed + 1}")
                 print("Best:", [a.scorer.get_score() for a in best_agents])
                 print("Worst:", [a.scorer.get_score() for a in self.agents[len(self.agents) - self.num_reproducing:]])
-                print(f"All:", [a.scorer.get_score() for a in self.agents])
+                # print(f"All:", [a.scorer.get_score() for a in self.agents])
 
                 self.score_lists.append([a.scorer.get_score() for a in self.agents])
 
@@ -219,11 +219,10 @@ class Simulation:
                 self.switch_active_agent(0)
 
                 if self.increment_epoch():
-                    # Sim is over, save the best network
-                    with open("stats.pickle", "wb") as f:
-                        pickle.dump(self.score_lists, f)
-
+                    # Sim is over, save the best network and the score stats from training
                     self.best_agent.save_network(self.savename)
+                    with open(f"{self.savename}_stats.pickle", "wb") as f:
+                        pickle.dump(self.score_lists, f)
                     break
             
 
@@ -235,7 +234,7 @@ def main():
     parser.add_argument("-c", "--chainlength", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of additional segments to add onto the end of the rods")
     parser.add_argument("-n", "--nographics", action="store_true", help="disable graphics")
     parser.add_argument("-l", "--loadname", metavar="NETWORK_NAME", type=str, help="the neural network file to load. Will not train the loaded network")
-    parser.add_argument("-s", "--savename", metavar="NETWORK_NAME", type=str, help="the name of the file the network will be saved in")
+    parser.add_argument("-s", "--savename", metavar="NETWORK_NAME", type=str, help="the name of the file the best network will be saved in")
     args = parser.parse_args()
     
     if args.agents > 1000:
