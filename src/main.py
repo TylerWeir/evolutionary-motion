@@ -67,6 +67,7 @@ class Simulation:
 
         self.stop_early = True and do_graphics
 
+
     def showcase_loop(self, filename):
         """Loads the simulation in a display mode for showcaseing a loaded network."""
 
@@ -76,6 +77,7 @@ class Simulation:
         # Create an agent with a chain matching the network's input size
         net_input_len = display_net.input_size
         display_agent = agent.Agent(net_input_len-3)
+        display_agent.net = display_net
         
         # Enter the main loop
         while True:
@@ -216,8 +218,8 @@ class Simulation:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-a", "--agents", metavar="NUMBER_OF_AGENTS", type=int, default=5, help="number of agents to simulate")
-    parser.add_argument("-r", "--reproducers", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of agents that reproduce after each round (must not be greater than the total number of agents)")
-    parser.add_argument("-c", "--chainlength", metavar="NUMBER_OF_AGENTS", type=int, default=3, help="number of additional segments to add onto the end of the rods")
+    parser.add_argument("-r", "--reproducers", metavar="NUMBER_OF_REPRODUCERS", type=int, default=3, help="number of agents that reproduce after each round (must not be greater than the total number of agents)")
+    parser.add_argument("-c", "--chainlength", metavar="NUMBER_OF_CHAINLINKS", type=int, default=3, help="number of additional segments to add onto the end of the rods")
     parser.add_argument("-n", "--nographics", action="store_true", help="disable graphics")
     parser.add_argument("-l", "--loadname", metavar="NETWORK_NAME", type=str, help="the neural network file to load. Will not train the loaded network")
     parser.add_argument("-s", "--savename", metavar="NETWORK_NAME", type=str, help="the name of the file the network will be saved in")

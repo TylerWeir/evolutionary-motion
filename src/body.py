@@ -66,6 +66,34 @@ class Skeleton:
         # After moving the points, satisfy the constraints
         self.satisfy_constraints()
 
+    def calc_angle_between(self, point_one, point_two):
+        """Returns the angle between two points.
+
+        Parameters: 
+        - point_one: The index of the first point.
+        - point-two: The index of the second point.
+
+        Returns: (float) The angle between the points.
+        """
+        return self.points[point_one].angle_to(self.points[point_two])
+
+    def calc_angular_velocity(self, point_one, point_two, time_step):
+        """Returns the angular velocity between two points.
+
+        Parameters:
+        - point_one: The index of the base point.
+        - point_two: The index of the orbiting point.
+
+        Returns: (float) The angular velocity of the second point about the first point.
+        """
+        # W = r x v
+
+        diff = self.points[point_two] - self.old_points[point_two]
+        vel = diff/time_step
+
+        omega = self.points[point_one].cross(vel)
+        return omega
+
 
     def satisfy_constraints(self):
         """Satisfys bounds and stick constraints between points.
