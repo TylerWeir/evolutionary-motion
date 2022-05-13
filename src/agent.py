@@ -134,6 +134,10 @@ class Agent():
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
 
+            # if the net is successful, stop it running to avoid infinite simulation
+            if self.scorer.get_score() > SUCCESS_THRESHOLD:
+                self.scorer.running = False
+
 
     def nn_weights_string(self):
         return str(self.net)
