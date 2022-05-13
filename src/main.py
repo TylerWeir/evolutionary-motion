@@ -82,6 +82,7 @@ class Simulation:
         # Create an agent with a chain matching the network's input size
         net_input_len = display_net.input_size
         display_agent = agent.Agent(net_input_len-3)
+        display_agent.net = display_net
         
         # Enter the main loop
         while True:
@@ -187,6 +188,10 @@ class Simulation:
                 pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top, 30, 30))
                 
                 graphics.Graphics.update()
+            
+            # on last epoch, don't stop early
+            if self.epochs_elapsed == self.epochs - 1:
+                self.stop_early = False
 
             # if all the agents are done, prepare next generation
             agents_are_done = [a.scorer.is_done() for a in self.agents]
@@ -197,6 +202,7 @@ class Simulation:
                 print(f"Gen {self.epochs_elapsed + 1}")
                 print("Best:", [a.scorer.get_score() for a in best_agents])
                 print("Worst:", [a.scorer.get_score() for a in self.agents[len(self.agents) - self.num_reproducing:]])
+                print(f"All:", [a.scorer.get_score() for a in self.agents])
 
                 self.score_lists.append([a.scorer.get_score() for a in self.agents])
 
@@ -219,10 +225,6 @@ class Simulation:
 
                     self.best_agent.save_network(self.savename)
                     break
-                
-                # on last epoch, don't stop early
-                if self.epochs_elapsed == self.epochs - 1:
-                    self.stop_early = False
             
 
 def main():

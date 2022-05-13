@@ -68,7 +68,7 @@ class Skeleton:
 
 
     def satisfy_constraints(self):
-        """Satisfys bounds and stick constraints between points.
+        """Satisfies bounds and stick constraints between points.
 
         Returns: None
         """
