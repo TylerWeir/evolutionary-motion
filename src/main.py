@@ -76,7 +76,7 @@ class Simulation:
 
         # Create an agent with a chain matching the network's input size
         net_input_len = display_net.input_size
-        display_agent = agent.Agent(net_input_len-3)
+        display_agent = agent.Agent((net_input_len-3)//2)
         display_agent.net = display_net
         
         # Enter the main loop

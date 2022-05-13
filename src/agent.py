@@ -59,7 +59,7 @@ class Agent():
 
         # Define a NeuralNet for the agent
         # input layer is base position, base velocity, x position relative to base for all other ponts
-        self.net = NeuralNet(len(points) + 1, 1, tanh)
+        self.net = NeuralNet(len(points)*2, 1, tanh)
         self.net.add_hidden_layer(6, tanh)
         self.net.add_hidden_layer(6, tanh)
         self.net.add_hidden_layer(3, tanh)
@@ -122,14 +122,16 @@ class Agent():
         - delta_t (float): The number of seconds that have passed since
                            the last frame.
         """
-
-        # only update if the pole is airborne
         if not self.scorer.is_done():
-            # get the direction of effort
-            point_positions = [self.skeleton.points[i+1][0] - self.skeleton.points[i][0] for i in range(self.chain_length + 1)]
-            effort_vector = self.net.evaluate(np.array([self.vel.x, self.pos.x] + point_positions))
+            # Feed the net the agent state
+            # Feed each point's polar angle, then angular velocity
+            net_input = [self.pos.x, self.vel.x]
+            for i in range(1, len(self.skeleton.points)):
+                angular_pos = self.skeleton.calc_angle_between(i-1, i)
+                angular_vel = self.skeleton.calc_angular_velocity(i-1, i, delta_t)
+                net_input += [angular_pos, angular_vel]
+            effort_vector = self.net.evaluate(net_input)
             move_force = tanh(effort_vector[0])
-            # print(f"{rod_tip_pos_relative_to_base=} {effort_vector=} {move_force=}")
             self.apply_force(move_force, delta_t)
             self.skeleton.move(delta_t)
             self.scorer.update(self.skeleton)
