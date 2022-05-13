@@ -6,6 +6,7 @@ This class is used to create an instance of the simulation.
 
 import argparse
 import pickle
+import os
 
 import pygame
 from pygame.locals import *
@@ -37,6 +38,13 @@ class Simulation:
             self.screen = graphics.Graphics()
             self.environment = environment.Environment()
 
+        # create list of agents
+        self.agents = [agent.Agent(chain_length=self.chain_length) for _ in range(num_agents)]
+
+        # Set the active agent
+        self.active_agent = 0
+        self.set_active_agent(0)
+
         if kwargs.get("loadfile") is not None:
             self.showcase_loop(kwargs.get("loadfile"))
             exit(0)
@@ -46,9 +54,6 @@ class Simulation:
             # presses s. Then print a network saved message
             self.savename = kwargs.get("savefile")
 
-        # create list of agents
-        self.agents = [agent.Agent(chain_length=self.chain_length) for _ in range(num_agents)]
-
         self.mutation_amount = 0.1 # standard deviation in gaussian noise
         self.mutation_decay = 0.99
 
@@ -57,10 +62,6 @@ class Simulation:
 
         self.best_agent = None
         self.best_score = -10000000
-
-        # Set the active agent
-        self.active_agent = 0
-        self.switch_active_agent(0)
 
         self.score_lists = [] # list of lists of scores for each agent on each epoch
 
@@ -76,13 +77,30 @@ class Simulation:
     def showcase_loop(self, filename):
         """Loads the simulation in a display mode for showcaseing a loaded network."""
 
-        # Load in the saved network
-        display_net = NeuralNet.net_from_file(filename)
+        if os.path.isdir(filename):
+            self.agents = []
+            for item in os.listdir(filename):
+                try:
+                    net = NeuralNet.net_from_file(os.path.join(filename, item))
+                    net_input_len = net.input_size
+                    a = agent.Agent(net_input_len - 3)
+                    a.net = net
+                    self.agents.append(a)
+                except:
+                    pass
+            
+        elif os.path.isfile(filename):
+            # Load in the saved network
+            display_net = NeuralNet.net_from_file(filename)
 
-        # Create an agent with a chain matching the network's input size
-        net_input_len = display_net.input_size
-        display_agent = agent.Agent(net_input_len-3)
-        display_agent.net = display_net
+            # Create an agent with a chain matching the network's input size
+            net_input_len = display_net.input_size
+            display_agent = agent.Agent(net_input_len-3)
+            display_agent.net = display_net
+
+            self.agents = [display_agent]
+        
+        self.set_active_agent(0)
         
         # Enter the main loop
         while True:
@@ -94,39 +112,51 @@ class Simulation:
                         if event.key == K_ESCAPE:
                             pygame.quit()
                             sys.exit()
+                        if event.key == K_LEFT:
+                            self.increment_active_agent(-1)
+                        if event.key == K_RIGHT:
+                            self.increment_active_agent(1)
 
             # update agent
-            display_agent.update(1/60)
+            [a.update(1/60) for a in self.agents]
 
             # Draw the environment again
             if self.do_graphics:
                 self.environment.draw(self.screen)
 
-                # draw the agent and its network
-                display_agent.draw(self.screen)
-                display_agent.net.draw(self.screen)
+                # draw agents
+                [a.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
+                if self.agents[self.active_agent].scorer.is_done():
+                    for i, a in enumerate(self.agents):
+                        if not a.scorer.is_done():
+                            self.set_active_agent(i)
+
                 graphics.Graphics.update()
 
-            # if the agent falls over, reset it
-            if display_agent.scorer.is_done():
-                print(f"Score: {display_agent.scorer.get_score()}")
-                display_agent.reset()
 
-
-    def switch_active_agent(self, direction):
+    def increment_active_agent(self, direction):
         """Switches the active agent."""
         # Turn off hightlighting on the old agent
         self.agents[self.active_agent].is_highlighted = False
         
         # Change the active agent index
-        self.active_agent += direction
-        if self.active_agent < 0:
-            self.active_agent = len(self.agents)-1
-        if self.active_agent >= len(self.agents):
-            self.active_agent = 0
+        for _ in self.agents:
+            self.active_agent = (self.active_agent + direction) % len(self.agents)
+            if self.agents[self.active_agent].scorer.is_done():
+                continue
+            else:
+                break
 
         # Turn on highlighting for the new active agent
         self.agents[self.active_agent].is_highlighted = True
+    
+
+    def set_active_agent(self, idx):
+        for a in self.agents:
+            a.is_highlighted = False
+
+        self.active_agent = idx
+        self.agents[idx].is_highlighted = True
 
 
     def increment_epoch(self):
@@ -154,9 +184,9 @@ class Simulation:
                             pygame.quit()
                             return
                         if event.key == K_LEFT:
-                            self.switch_active_agent(-1)
+                            self.increment_active_agent(-1)
                         if event.key == K_RIGHT:
-                            self.switch_active_agent(1)
+                            self.increment_active_agent(1)
                         if event.key == K_SPACE:
                             self.stop_early = not self.stop_early
                         
@@ -177,14 +207,16 @@ class Simulation:
             if self.do_graphics:
                 # Draw the environment again
                 self.environment.draw(self.screen)
+
                 # draw agents
                 [a.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
                 if self.agents[self.active_agent].scorer.is_done():
                     for i, a in enumerate(self.agents):
                         if not a.scorer.is_done():
-                            self.switch_active_agent(i)
-                self.screen.blit(self.text, self.text_rect)
+                            self.set_active_agent(i)
 
+                # stop early indicator
+                self.screen.blit(self.text, self.text_rect)
                 pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top, 30, 30))
                 
                 graphics.Graphics.update()
@@ -216,15 +248,13 @@ class Simulation:
                 self.agents = [best_agents[i % len(best_agents)].mutated_copy(self.mutation_amount) for i in range(round(self.num_agents * 0.9))]
                 self.agents += [agent.Agent(chain_length=self.chain_length) for _ in range(self.num_agents - round(self.num_agents * 0.9))]
 
-                self.switch_active_agent(0)
-
                 if self.increment_epoch():
                     # Sim is over, save the best network and the score stats from training
                     self.best_agent.save_network(self.savename)
                     with open(f"{self.savename}_stats.pickle", "wb") as f:
                         pickle.dump(self.score_lists, f)
                     break
-            
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
