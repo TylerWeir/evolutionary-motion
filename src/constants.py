@@ -27,4 +27,4 @@ MIDDLE_COLOR = (0, 0, 0)
 POSITIVE_COLOR = (0, 0, 255)
 
 # Training parameters
-SUCCESS_THRESHOLD = 2_000 # >= this score indicates the net is a success and is probably stable
+SUCCESS_THRESHOLD = 20_000 # >= this score indicates the net is a success and is probably stable
