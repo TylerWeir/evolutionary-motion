@@ -10,7 +10,7 @@ import os
 
 import pygame
 from pygame.locals import *
-from constants import SCREEN_BACKGROUND_COLOR
+from constants import RANDOM_MIXIN, SCREEN_BACKGROUND_COLOR, SUCCESS_THRESHOLD
 import environment
 import graphics
 import agent
@@ -231,9 +231,12 @@ class Simulation:
                 # get the best agents
                 self.agents.sort(key=lambda x: -x.scorer.get_score())
                 best_agents = self.agents[:self.num_reproducing]
-                print(f"Gen {self.epochs_elapsed + 1}")
-                print("Best:", [a.scorer.get_score() for a in best_agents])
-                print("Worst:", [a.scorer.get_score() for a in self.agents[len(self.agents) - self.num_reproducing:]])
+                print(f"\nGen {self.epochs_elapsed + 1}")
+                print("Best scores:", [a.scorer.get_score() for a in best_agents])
+                scores = [a.scorer.get_score() for a in self.agents]
+                print("Last index of max score:", max(i for i, s in enumerate(scores) if s == self.agents[0].scorer.get_score()))
+                print("Average:", sum(scores) / len(scores))
+                # print("Worst (excluding fresh agents):", [a.scorer.get_score() for a in self.agents[-self.num_reproducing - round(self.num_agents * RANDOM_MIXIN):]])
                 # print(f"All:", [a.scorer.get_score() for a in self.agents])
 
                 self.score_lists.append([a.scorer.get_score() for a in self.agents])
@@ -245,13 +248,14 @@ class Simulation:
                         self.best_agent = best_agents[0]
                     
                 # best agents reproduce
-                self.agents = [best_agents[i % len(best_agents)].mutated_copy(self.mutation_amount) for i in range(round(self.num_agents * 0.9))]
-                self.agents += [agent.Agent(chain_length=self.chain_length) for _ in range(self.num_agents - round(self.num_agents * 0.9))]
+                self.agents = [best_agents[i % len(best_agents)].mutated_copy(self.mutation_amount) for i in range(self.num_agents - round(self.num_agents * RANDOM_MIXIN))]
+                self.agents += [agent.Agent(chain_length=self.chain_length) for _ in range(round(self.num_agents * RANDOM_MIXIN))]
 
                 if self.increment_epoch():
                     # Sim is over, save the best network and the score stats from training
-                    self.best_agent.save_network(self.savename)
-                    with open(f"{self.savename}_stats.pickle", "wb") as f:
+                    name_with_params = f"{self.savename}_{self.num_agents}a_{self.num_reproducing}r_{self.epochs}e_{SUCCESS_THRESHOLD}"
+                    self.best_agent.save_network(name_with_params)
+                    with open(f"{name_with_params}_stats.pickle", "wb") as f:
                         pickle.dump(self.score_lists, f)
                     break
 
