@@ -74,14 +74,14 @@ class Simulation:
 
         self.stop_early = True
 
-    def showcase_loop(self, filename):
+    def showcase_loop(self, path):
         """Loads the simulation in a display mode for showcaseing a loaded network."""
 
-        if os.path.isdir(filename):
+        if os.path.isdir(path):
             self.agents = []
-            for item in os.listdir(filename):
+            for item in os.listdir(path):
                 try:
-                    net = NeuralNet.net_from_file(os.path.join(filename, item))
+                    net = NeuralNet.net_from_file(os.path.join(path, item))
                     net_input_len = net.input_size
                     a = agent.Agent(net_input_len - 3)
                     a.net = net
@@ -89,9 +89,9 @@ class Simulation:
                 except:
                     pass
             
-        elif os.path.isfile(filename):
+        elif os.path.isfile(path):
             # Load in the saved network
-            display_net = NeuralNet.net_from_file(filename)
+            display_net = NeuralNet.net_from_file(path)
 
             # Create an agent with a chain matching the network's input size
             net_input_len = display_net.input_size
@@ -116,6 +116,11 @@ class Simulation:
                             self.increment_active_agent(-1)
                         if event.key == K_RIGHT:
                             self.increment_active_agent(1)
+            
+            alive_agent_count = [a.scorer.is_done() for a in self.agents].count(False)
+
+            if alive_agent_count == 1:
+                self.unhighlight_all()
 
             # update agent
             [a.update(1/60, stop_at_threshold=False) for a in self.agents]
@@ -126,13 +131,15 @@ class Simulation:
 
                 # draw agents
                 [a.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
+                if alive_agent_count == 1:
+                    [a.net.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
                 if self.agents[self.active_agent].scorer.is_done():
                     for i, a in enumerate(self.agents):
                         if not a.scorer.is_done():
                             self.set_active_agent(i)
 
                 graphics.Graphics.update()
-            
+
             if all(a.scorer.is_done() for a in self.agents):
                 [a.reset() for a in self.agents]
 
@@ -154,9 +161,13 @@ class Simulation:
         self.agents[self.active_agent].is_highlighted = True
     
 
-    def set_active_agent(self, idx):
+    def unhighlight_all(self):
         for a in self.agents:
             a.is_highlighted = False
+
+
+    def set_active_agent(self, idx):
+        self.unhighlight_all()
 
         self.active_agent = idx
         self.agents[idx].is_highlighted = True
