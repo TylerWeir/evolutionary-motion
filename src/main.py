@@ -118,7 +118,7 @@ class Simulation:
                             self.increment_active_agent(1)
 
             # update agent
-            [a.update(1/60) for a in self.agents]
+            [a.update(1/60, stop_at_threshold=False) for a in self.agents]
 
             # Draw the environment again
             if self.do_graphics:

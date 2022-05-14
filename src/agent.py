@@ -115,7 +115,7 @@ class Agent():
         self.move(self.vel.x)
 
 
-    def update(self, delta_t):
+    def update(self, delta_t, stop_at_threshold=True):
         """Updates the agent given the time step.
 
         Parameters:
@@ -135,7 +135,7 @@ class Agent():
             self.scorer.update(self.skeleton)
 
             # if the net is successful, stop it running to avoid infinite simulation
-            if self.scorer.get_score() > SUCCESS_THRESHOLD:
+            if self.scorer.get_score() > SUCCESS_THRESHOLD and stop_at_threshold:
                 self.scorer.running = False
 
 
