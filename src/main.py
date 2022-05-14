@@ -132,6 +132,9 @@ class Simulation:
                             self.set_active_agent(i)
 
                 graphics.Graphics.update()
+            
+            if all(a.scorer.is_done() for a in self.agents):
+                [a.reset() for a in self.agents]
 
 
     def increment_active_agent(self, direction):
@@ -213,7 +216,7 @@ class Simulation:
                 if self.agents[self.active_agent].scorer.is_done():
                     for i, a in enumerate(self.agents):
                         if not a.scorer.is_done():
-                            self.set_active_agent(i)
+                            self.increment_active_agent(i)
 
                 # stop early indicator
                 self.screen.blit(self.text, self.text_rect)

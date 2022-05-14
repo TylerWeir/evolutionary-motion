@@ -11,7 +11,7 @@ def display(path, frame_duration, outdir):
         data = pickle.load(f)
     
     if frame_duration is None:
-        frame_duration = 10 / len(data)
+        frame_duration = min(0.5, 10 / len(data))
     
     if outdir is not None and not os.path.isdir(outdir):
         os.makedirs(outdir)
