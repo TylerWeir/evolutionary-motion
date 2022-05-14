@@ -56,7 +56,23 @@ As you can see, by epoch 200 (but not earlier!) all 180 agents that are not rand
 
 
 Here's how the best network from the above training session performs:
+
 ![net11](demo_media/net11.gif)
+
+## Setup
+
+Mac/Linux:
+```sh
+python -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+
+# run a simulation
+python src/main.py -a 50 -r 10 -e 25 -s my_very_cool_net
+
+# or, showcase an existing network
+python src/main.py -l successful_nets/net11/net11_200a_10r_200e_5000
+```
 
 ## Usage
 Run `python src/main.py` with any of the follwing options.  The left and right arrow keys may be used to cycle through the active agents to visualize their respective neural networks in real time!
