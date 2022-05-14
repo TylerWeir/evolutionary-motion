@@ -30,6 +30,8 @@ To prevent getting stuck in local minima, we also reserve a certain portion of e
 
 Training to get all the networks to consistently be stable takes a very long time, because the better the nets get, the longer the simulation takes. To help mitigate this, we stop agents once they reach a score of `SUCCESS_THRESHOLD`, which in our experiments worked best around 5000. It is entirely possible to have nets that go past 5000 score and still eventually fall, but it is uncommon and having a cap there instead of, say, 50,000 drastically improves training time, so more epochs can be applied.
 
+For reference, the average score of a newly intialized net is around 250.
+
 Here's what training looks like. This is with 100 agents per round, the 20 best of which reproduce. The success threshold was set to 5000. Early stopping is turned off partway through to help illustrate the early performance of these agents, but this wouldn't be done in a real training session (in fact, graphics wouldn’t be on at all).
 
 
