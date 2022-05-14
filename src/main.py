@@ -17,10 +17,9 @@ import agent
 import sys
 from neural_net import NeuralNet
 
-import matplotlib.pyplot as plt
-
 
 pygame.init()
+
 
 class Simulation:
     """Creates a simulated environment containing ANN controlled agents."""
@@ -69,7 +68,11 @@ class Simulation:
             self.text = self.font.render('Skip endings:', True, (255, 0, 0), SCREEN_BACKGROUND_COLOR)
 
             self.text_rect = self.text.get_rect()
-            self.text_rect.center = (self.screen.get_width() // 2 - 500, self.screen.get_height() // 2)
+            self.text_rect.center = (self.screen.get_width() // 2 - 326, self.screen.get_height() // 2 + 240)
+
+            self.epoch_text = self.font.render("Epoch 1", True, (0, 0, 0), SCREEN_BACKGROUND_COLOR)
+            self.epoch_text_rect = self.epoch_text.get_rect()
+            self.epoch_text_rect.center = (self.screen.get_width() // 2, self.screen.get_height() // 2 - 400)
 
         self.stop_early = True
 
@@ -238,7 +241,8 @@ class Simulation:
 
                 # stop early indicator
                 self.screen.blit(self.text, self.text_rect)
-                pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top, 30, 30))
+                self.screen.blit(self.epoch_text, self.epoch_text_rect)
+                pygame.draw.rect(self.screen, (0, 255, 0) if self.stop_early else (50, 50, 50), (self.text_rect.right + 10, self.text_rect.top + 5, 30, 30))
                 
                 graphics.Graphics.update()
             
@@ -273,6 +277,8 @@ class Simulation:
                 self.agents += [agent.Agent(chain_length=self.chain_length) for _ in range(round(self.num_agents * RANDOM_MIXIN))]
 
                 self.set_active_agent(0)
+
+                self.epoch_text = self.font.render(f"Epoch {self.epochs_elapsed + 2}", True, (0, 0, 0), SCREEN_BACKGROUND_COLOR)
 
                 if self.increment_epoch():
                     # Sim is over, save the best network and the score stats from training
