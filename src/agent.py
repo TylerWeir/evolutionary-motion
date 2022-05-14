@@ -10,6 +10,7 @@ velocities.
 """
 import abc
 import random
+import os
 from math import atan2, cos, sin
 
 import pygame
@@ -294,7 +295,7 @@ class Agent():
 
     def save_network(self, filepath):
         """Saves the agent's network to the filepath."""
-        self.net.save(filepath)
+        self.net.save(filepath + ".pickle")
 
 
     def draw(self, canvas):
