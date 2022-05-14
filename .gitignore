@@ -2,3 +2,7 @@ __pycache__/
 
 env
 nets
+src/test.py
+
+*.png
+*.mp4
