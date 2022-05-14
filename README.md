@@ -36,7 +36,15 @@ Here's what training looks like. This is with 100 agents per round, the 20 best 
 ![100a20r5e](demo_media/100a20r5e.gif)
 
 
-## Example Results
+## Results
+
+The first goal of this project was to train agents capable of balancing a single pole above the sliding base. This turned out to be a very easy task for a neural network.  Many randomly initialized networks showcased impressive pole balancing skills just by happening to accelerate in the direction the pole was leaning.  A few successive generations later, this behavior would be sharpened to a more sophisticated reaction.  An impressive thing to note is that the agents were able to balance the pole using a network as small as just 12 neurons.
+
+The mace structure was introduced to increase the difficulty of the balancing task. This task demanded a more complex neural network than the single pole as it requires more complicated synthesis of the input state. The mace balancing also required far more epochs of training than the single pole, and agents enjoyed far fewer early luck based success.  Nonetheless we were able to create and train agents that can reliably balance the chaotic mace object.  
+
+After training multiple successful networks, it became visibly evident that network structure does not converge to a single solution. Though despite structural differences, the resulting behavior is very similar.  We found it amazing that such sophisticated networks can arise from multiple generations of completely random mutations and a simple scoring function.
+
+#### Results Visualized
 
 The following shows training for 200 epochs with 200 agents, 10% random mixins, and 10 agents selected for reproduction each epoch.
 
