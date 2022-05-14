@@ -29,3 +29,4 @@ POSITIVE_COLOR = (23, 198, 235)
 # Training parameters
 SUCCESS_THRESHOLD = 5_000 # >= this score indicates the net is a success and is probably stable
 RANDOM_MIXIN = 0.1 # portion of agents each round to intialize fresh (not descendants of previous nets)
+MUTATION_DECAY = 0.99

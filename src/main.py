@@ -10,7 +10,7 @@ import os
 
 import pygame
 from pygame.locals import *
-from constants import RANDOM_MIXIN, SCREEN_BACKGROUND_COLOR, SUCCESS_THRESHOLD
+from constants import RANDOM_MIXIN, SCREEN_BACKGROUND_COLOR, SUCCESS_THRESHOLD, MUTATION_DECAY
 import environment
 import graphics
 import agent
@@ -55,7 +55,6 @@ class Simulation:
             self.savename = kwargs.get("savefile")
 
         self.mutation_amount = 0.1 # standard deviation in gaussian noise
-        self.mutation_decay = 0.99
 
         self.epochs = epochs
         self.epochs_elapsed = 0
@@ -183,7 +182,7 @@ class Simulation:
 
     def increment_epoch(self):
         """ returns True if the final epoch has elapsed """
-        self.mutation_amount *= self.mutation_decay
+        self.mutation_amount *= MUTATION_DECAY
 
         self.epochs_elapsed += 1
         return self.epochs_elapsed >= self.epochs
