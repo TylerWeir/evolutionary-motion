@@ -254,6 +254,8 @@ class Simulation:
                 self.agents = [best_agents[i % len(best_agents)].mutated_copy(self.mutation_amount) for i in range(self.num_agents - round(self.num_agents * RANDOM_MIXIN))]
                 self.agents += [agent.Agent(chain_length=self.chain_length) for _ in range(round(self.num_agents * RANDOM_MIXIN))]
 
+                self.set_active_agent(0)
+
                 if self.increment_epoch():
                     # Sim is over, save the best network and the score stats from training
                     name_with_params = f"{self.savename}_{self.num_agents}a_{self.num_reproducing}r_{self.epochs}e_{SUCCESS_THRESHOLD}"
