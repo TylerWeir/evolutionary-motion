@@ -1,4 +1,4 @@
 # evolutionary-motion
 Train AI agents to perform pole balancing using an evolutionary neural network.
 
-https://user-images.githubusercontent.com/56745633/168405234-2da90d95-8103-44e0-8844-d706be0c2c26.mp4
+![out2](https://user-images.githubusercontent.com/56745633/168405389-91c27ece-7462-4929-aecd-e0083f114b9d.gif)
