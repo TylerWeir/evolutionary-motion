@@ -105,6 +105,7 @@ class Simulation:
         # Enter the main loop
         while True:
             if self.do_graphics:
+                big_cont = False
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         return
@@ -116,6 +117,13 @@ class Simulation:
                             self.increment_active_agent(-1)
                         if event.key == K_RIGHT:
                             self.increment_active_agent(1)
+                        if event.key == K_r:
+                            [a.reset() for a in self.agents]
+                            big_cont = True
+                            break
+                
+                if big_cont:
+                    continue
             
             alive_agent_count = [a.scorer.is_done() for a in self.agents].count(False)
 
