@@ -169,16 +169,16 @@ class NeuralNet:
 
 
     def __get_weight_color(self, activation_value):
-        x = math.tanh(0.5*activation_value)
+        x = math.tanh(activation_value)
 
         if x < 0:
             r_diff = NEGATIVE_COLOR[0] - MIDDLE_COLOR[0] 
             g_diff = NEGATIVE_COLOR[1] - MIDDLE_COLOR[1] 
             b_diff = NEGATIVE_COLOR[2] - MIDDLE_COLOR[2] 
 
-            r = NEGATIVE_COLOR[0] + r_diff * x
-            g = NEGATIVE_COLOR[1] + g_diff * x
-            b = NEGATIVE_COLOR[2] + b_diff * x
+            r = MIDDLE_COLOR[0] + r_diff * (-x)
+            g = MIDDLE_COLOR[1] + g_diff * (-x)
+            b = MIDDLE_COLOR[2] + b_diff * (-x) 
 
             return tuple((r, g, b))
 

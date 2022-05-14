@@ -22,9 +22,9 @@ NODE_VERT_SPACE = 10
 LAYER_SPACE = 200
 
 # Weight Colors
-NEGATIVE_COLOR = (255, 0, 0)
+NEGATIVE_COLOR = (244, 67, 54)
 MIDDLE_COLOR = (0, 0, 0)
-POSITIVE_COLOR = (0, 0, 255)
+POSITIVE_COLOR = (23, 198, 235)
 
 # Training parameters
 SUCCESS_THRESHOLD = 5_000 # >= this score indicates the net is a success and is probably stable
