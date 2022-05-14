@@ -234,7 +234,7 @@ class Simulation:
                 # get the best agents
                 self.agents.sort(key=lambda x: -x.scorer.get_score())
                 best_agents = self.agents[:self.num_reproducing]
-                print(f"\nGen {self.epochs_elapsed + 1}")
+                print(f"\nGen {self.epochs_elapsed + 1}/{self.epochs}")
                 print("Best scores:", [a.scorer.get_score() for a in best_agents])
                 scores = [a.scorer.get_score() for a in self.agents]
                 print("Last index of max score:", max(i for i, s in enumerate(scores) if s == self.agents[0].scorer.get_score()))
