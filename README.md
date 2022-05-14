@@ -9,4 +9,4 @@ As you can see, by epoch 200 (but not earlier!) all 180 agents that are not rand
 
 
 Here's how the best network from the above training session performs:
-![reallygoodnet](https://user-images.githubusercontent.com/56745633/168406510-2f0a5d5c-45cd-4942-a8ea-76ce3e03594f.gif)
+![reallygoodnet](https://user-images.githubusercontent.com/56745633/168406853-8b0fc98e-ba83-428a-aea4-0ffcff70942e.gif)
