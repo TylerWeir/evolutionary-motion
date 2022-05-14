@@ -235,9 +235,7 @@ class Simulation:
                 # draw agents
                 [a.draw(self.screen) for a in self.agents if not a.scorer.is_done()]
                 if self.agents[self.active_agent].scorer.is_done():
-                    for i, a in enumerate(self.agents):
-                        if not a.scorer.is_done():
-                            self.increment_active_agent(i)
+                    self.increment_active_agent(1)
 
                 # stop early indicator
                 self.screen.blit(self.text, self.text_rect)
@@ -261,8 +259,6 @@ class Simulation:
                 scores = [a.scorer.get_score() for a in self.agents]
                 print("Last index of max score:", max(i for i, s in enumerate(scores) if s == self.agents[0].scorer.get_score()))
                 print("Average:", sum(scores) / len(scores))
-                # print("Worst (excluding fresh agents):", [a.scorer.get_score() for a in self.agents[-self.num_reproducing - round(self.num_agents * RANDOM_MIXIN):]])
-                # print(f"All:", [a.scorer.get_score() for a in self.agents])
 
                 self.score_lists.append([a.scorer.get_score() for a in self.agents])
 
