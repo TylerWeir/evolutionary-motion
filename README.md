@@ -35,7 +35,7 @@ For reference, the average score of a newly intialized net is around 250.
 Here's what training looks like. This is with 100 agents per round, the 20 best of which reproduce. The success threshold was set to 5000. Early stopping is turned off partway through to help illustrate the early performance of these agents, but this wouldn't be done in a real training session (in fact, graphics wouldn’t be on at all).
 
 
-![100a20r5e](demo_media/100a20r5e.gif)
+![100a20r5e](demo_media/50a10r5e.gif)
 
 
 ## Results
