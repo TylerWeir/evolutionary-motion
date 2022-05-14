@@ -30,7 +30,7 @@ As you can see, by epoch 200 (but not earlier!) all 180 agents that are not rand
 
 
 Here's how the best network from the above training session performs:
-![reallygoodnet](demo_media/reallygoodnet.gif)
+![net11](demo_media/net11.gif)
 
 ## Usage
 | Argument     | Type  |Description |
