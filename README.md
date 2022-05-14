@@ -57,6 +57,7 @@ Here's how the best network from the above training session performs:
 ![net11](demo_media/net11.gif)
 
 ## Usage
+Run `python src/main.py` with any of the follwing options:
 | Argument     | Type  |Description |
 |--------------|-------|------------|
 |-h, --help    |  n/a  |  Shows the help message |
