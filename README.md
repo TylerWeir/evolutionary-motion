@@ -15,7 +15,7 @@ The agents make decisions frame-by-frame about how much "effort" to apply to mov
 
 Noise is applied to the physics of the mace, as well as the force output of the network, to add additional challenge and realism. This also prevents overfitting in the model; it cannot simply learn to account for an exact starting condition as every run will be slightly different.
 
-The decision process is executed with a custom coded neural network based in NumPy. The Physics system was created using Thomas Jakobsen’s [Advanced Character Physics](http://www.cs.cmu.edu/afs/cs/academic/class/15462-s13/www/lec_slides/Jakobsen.pdf). All graphics and window management is implemented using the Pygame library
+The decision process is executed with a custom coded neural network based in NumPy. The inputs to the network are simply the horizontal position and velocity of the agent's base, as well as the x distance from the base of each joint. The Physics system was created using Thomas Jakobsen’s [Advanced Character Physics](http://www.cs.cmu.edu/afs/cs/academic/class/15462-s13/www/lec_slides/Jakobsen.pdf). All graphics and window management is implemented using the Pygame library.
 
 ## Training
 During training we use "early stopping" to improve efficiency. If 20 agents are reproducing each round, then there is no need to simulate further once only 20 agents remain.
