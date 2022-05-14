@@ -1,6 +1,18 @@
 # Evolutionary Mace Balancing
 Train AI agents to perform mace balancing using an evolutionary neural network.
 
+## Background
+
+"Mace balancing" involves applying some (limited) force to a base that is supporting a pole, such that the pole does not fall over, with the added challenge of a heavy chain hanging off the end of the pole. This chain massively increases the chaos of the system and makes the balancing act a much harder problem than simple pole balancing.
+
+We employ a mutation-and-selection evolutionary algorithm to create highly capable mace balancing agents.
+
+The agents make decisions frame-by-frame about how much "effort" to apply to move their base and in what direction. This "effort" value is unbounded, but is passed through a tanh function and scaled according to their "strength" property, to mimic the way that a living being applies force in the real world.
+
+The decision process is executed with a custom coded neural network.
+
+Each generation, gaussian noise with a certain standard deviation is applied to all the weights in the top networks. The number of networks chosen for reproduction is specified with the -r command line argument. In our experimentation, roughly 10-20% of the total number of agents seems to work best.
+
 
 The following shows training for 200 epochs with 200 agents, 10% random mixins, and 10 agents selected for reproduction each epoch.
 
