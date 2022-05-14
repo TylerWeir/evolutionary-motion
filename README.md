@@ -13,17 +13,24 @@ The decision process is executed with a custom coded neural network.
 
 Each generation, gaussian noise with a certain standard deviation is applied to all the weights in the top networks. The number of networks chosen for reproduction is specified with the -r command line argument. In our experimentation, roughly 10-20% of the total number of agents seems to work best.
 
+During training we use "early stopping" to improve efficiency. If 20 agents are reproducing each round, then there is no need to simulate further once only 20 agents remain.
+
+Here's what training looks like. This is with 100 agents per round, the 20 best of which reproduce. Notice how early stopping is turned off partway through (via pressing the space bar). This wouldn't be done in a real training session (in fact, graphics wouldnt be on at all) but is helpful in illustrating the early performance of these agents.
+
+![100a20r5e](demo_media/100a20r5e.gif)
+
+
 ## Example Results
 
 The following shows training for 200 epochs with 200 agents, 10% random mixins, and 10 agents selected for reproduction each epoch.
 
 As you can see, by epoch 200 (but not earlier!) all 180 agents that are not random mixins reach 5000 score, indicating success.
 
-![out2](https://user-images.githubusercontent.com/56745633/168406539-62ffaa14-67ea-422e-9ac7-3e2afe6ee830.gif)
+![out2](demo_media/out2.gif)
 
 
 Here's how the best network from the above training session performs:
-![reallygoodnet](https://user-images.githubusercontent.com/56745633/168406853-8b0fc98e-ba83-428a-aea4-0ffcff70942e.gif)
+![reallygoodnet](demo_media/reallygoodnet.gif)
 
 ## Usage
 | Argument     | Type  |Description |
